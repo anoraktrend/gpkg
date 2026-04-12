@@ -1,0 +1,25 @@
+# gpkg PKGBUILD for zlib
+# POSIX shell compliant - EE Ethos
+
+pkgname="zlib"
+pkgver="1.3.2"
+pkgdesc="A compression/decompression library"
+url="https://zlib.net/"
+source="https://zlib.net/current/zlib.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    # zlib extraction name is usually just zlib-version
+    cd "zlib-$pkgver"
+    ./configure --prefix=/usr
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "zlib-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}

@@ -13,13 +13,13 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver with $CC..."
     cd "toybox-$pkgver"
-    # ckati (GNU make clone)
-    ckati CC=$CC HOSTCC=$CC defconfig
-    ckati CC=$CC HOSTCC=$CC
+    # User steering: use gmake for GNU-dependent builds
+    gmake CC=$CC HOSTCC=$CC defconfig
+    gmake CC=$CC HOSTCC=$CC
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "toybox-$pkgver"
-    ckati PREFIX="$DESTDIR" install
+    gmake PREFIX="$DESTDIR" install
 }

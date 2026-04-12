@@ -13,7 +13,7 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver with $CC..."
     cd "mksh"
-    sh Build.sh -r -c $CC
+    CC="$CC" sh Build.sh -r
 }
 
 package() {

@@ -12,6 +12,9 @@ REPO_DIR="repo-stage1"
 STAGE1_ROOT="$(pwd)/stage1-root"
 export GPKG_ROOT="$STAGE1_ROOT"
 export PATH="$STAGE1_ROOT/usr/bin:$PATH"
+export PKG_CONFIG_PATH="$STAGE1_ROOT/usr/lib/pkgconfig:$STAGE1_ROOT/usr/share/pkgconfig"
+export PKG_CONFIG_LIBDIR="$STAGE1_ROOT/usr/lib/pkgconfig:$STAGE1_ROOT/usr/share/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR="/"
 
 # Ensure gpkg itself is built and ready
 make all
@@ -20,18 +23,42 @@ make all
 PACKAGES="
     linux-headers
     musl
-    kati
+    gettext-tiny
+    libexecinfo
+    zlib
+    ncurses
+    openssl
+    libffi
+    pcre2
+    json-c
+    pkgconf
+    scdoc
+    libbsd
+    libxml2
+    bmake
+    gmake
+    m4
+    byacc
+    flex
+    gperf
     samu
     cmake
+    flit-core
+    markupsafe
+    jinja2
+    meson
+    glib
+    pixman
+    freetype
+    fontconfig
+    harfbuzz
+    libexpat
+    wayland
     aria2
-    llvm-tblgen
-    compiler-rt
-    libunwind
-    libcxxabi
-    libcxx
+    curl
+    git
+    rnp
     llvm
-    clang
-    lld
     busybox
     toybox
     mksh
@@ -45,7 +72,6 @@ echo "Stage1 Root: $STAGE1_ROOT"
 
 for pkg in $PACKAGES; do
     # Check if package is already installed
-    # We need to find the version from PKGBUILD to check correctly
     pkgname=$(grep '^pkgname=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgver=$(grep '^pkgver=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgname_ver="$pkgname-$pkgver"
@@ -63,10 +89,11 @@ for pkg in $PACKAGES; do
     ./gpkg build "$REPO_DIR/$pkg"
     
     # 2. Get the built filename
-    pkgfile="$pkgname-$pkgver.gpkg.tar.gz"
-    if [ ! -f "$pkgfile" ]; then
-        # Fallback to finding latest if naming is complex
-        pkgfile=$(ls -t *.gpkg.tar.gz | head -n 1)
+    pkgfile=$(ls -t $pkgname-$pkgver*.gpkg.tar.gz 2>/dev/null | head -n 1)
+    
+    if [ -z "$pkgfile" ]; then
+        echo "Error: Package file for $pkgname-$pkgver not found."
+        exit 1
     fi
     
     # 3. Install it into Stage1 Root

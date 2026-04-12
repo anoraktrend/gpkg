@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for busybox (Stage1)
+# Use system 'bmake' to build BusyBox
+
+pkgname="busybox"
+pkgver="1.37.0"
+pkgdesc="Swiss Army Knife of embedded Linux utilities"
+url="https://busybox.net/"
+source="https://busybox.net/downloads/busybox-$pkgver.tar.bz2"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "busybox-$pkgver"
+    bmake CC=$CC HOSTCC=$CC defconfig
+    # Disable problematic TC applet
+    sed -i 's/CONFIG_TC=y/CONFIG_TC=n/' .config
+    bmake CC=$CC HOSTCC=$CC
+}
+
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "busybox-$pkgver"
+    bmake CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
+}

@@ -1,0 +1,25 @@
+# gpkg PKGBUILD for toybox
+# POSIX shell compliant - EE Ethos
+
+pkgname="toybox"
+pkgver="0.8.11"
+pkgdesc="BSD-licensed alternative to BusyBox"
+url="http://www.landley.net/toybox/"
+source="https://github.com/landley/toybox/archive/refs/tags/$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "toybox-$pkgver"
+    # ckati (GNU make clone)
+    ckati CC=$CC HOSTCC=$CC defconfig
+    ckati CC=$CC HOSTCC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "toybox-$pkgver"
+    ckati PREFIX="$DESTDIR" install
+}

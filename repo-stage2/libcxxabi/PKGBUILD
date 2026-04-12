@@ -1,0 +1,36 @@
+# gpkg PKGBUILD for libc++abi
+# POSIX shell compliant - EE Ethos
+
+pkgname="libcxxabi"
+pkgver="18.1.8"
+pkgdesc="Low-level support library for the LLVM C++ Standard Library"
+url="https://libcxx.llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/libcxxabi-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libcxxabi-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DLIBCXXABI_USE_COMPILER_RT=ON \
+          -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
+          -DLIBCXXABI_LIBUNWIND_INCLUDES=/usr/include
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libcxxabi-$pkgver.src"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

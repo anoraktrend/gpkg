@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for river
+# POSIX shell compliant - EE Ethos
+
+pkgname="river"
+pkgver="0.4.2"
+pkgdesc="A dynamic tiling Wayland compositor"
+url="https://codeberg.org/river/river"
+source="https://codeberg.org/river/river/archive/v$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+# river is built with zig
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "river"
+    
+    # river uses zig build system
+    zig build -Doptimize=ReleaseSafe \
+              --prefix /usr
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "river"
+    zig build install --prefix /usr --destdir "$DESTDIR"
+}

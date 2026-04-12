@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for linux
+# POSIX shell compliant - EE Ethos
+
+pkgname="linux"
+pkgver="6.19.12"
+pkgdesc="The Linux kernel"
+url="https://www.kernel.org/"
+source="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+HOSTCC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "linux-$pkgver"
+    
+    # Use LLVM=1 and gmake for kernel build
+    gmake LLVM=1 ARCH=x86_64 HOSTCC=$HOSTCC CC=$CC defconfig
+    gmake LLVM=1 ARCH=x86_64 HOSTCC=$HOSTCC CC=$CC -j$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/boot"
+    cd "linux-$pkgver"
+    mkdir -p "$DESTDIR/boot"
+    cp arch/x86/boot/bzImage "$DESTDIR/boot/vmlinuz-$pkgver"
+    
+    # Install modules
+    gmake LLVM=1 ARCH=x86_64 HOSTCC=$HOSTCC CC=$CC INSTALL_MOD_PATH="$DESTDIR" modules_install
+}

@@ -3,10 +3,10 @@
 # samu (samurai) - C99 Ninja replacement
 
 pkgname="samu"
-pkgver="1.2"
+pkgver="1.3"
 pkgdesc="A Ninja-compatible build tool written in C99"
 url="https://github.com/michaelforney/samurai"
-source="https://github.com/michaelforney/samurai/archive/refs/tags/1.2.tar.gz"
+source="https://github.com/michaelforney/samurai/archive/refs/tags/$pkgver.tar.gz"
 
 # Tools to be used (no GNU assumptions)
 CC="clang"
@@ -14,7 +14,7 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver with $CC..."
     cd "samurai-$pkgver"
-    ckati CC=$CC
+    bmake CC=$CC
 }
 
 package() {

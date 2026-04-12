@@ -15,7 +15,7 @@ build() {
     echo "Bootstrapping $pkgname-$pkgver using system make..."
     cd "kati-make-linux"
     # Use host 'make' to build ckati
-    make -f Makefile.ckati CC=$CC CXX=$CXX
+    /usr/bin/make -f Makefile.ckati CC=$CC CXX=$CXX
 }
 
 package() {
@@ -23,5 +23,5 @@ package() {
     mkdir -p "$DESTDIR/usr/bin"
     cd "kati-make-linux"
     cp ckati "$DESTDIR/usr/bin/"
-    ln -sf ckati "$DESTDIR/usr/bin/make"
+    # NO SYMLINK TO make HERE
 }

@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for bmake (Stage1)
+# Use system tools to build bmake
+
+pkgname="bmake"
+pkgver="20260313"
+pkgdesc="Portable version of NetBSD make"
+url="https://www.crufty.net/help/sjg/bmake.html"
+source="http://www.crufty.net/ftp/pub/sjg/bmake-$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "bmake"
+    # Use -o to specify OS and --prefix
+    sh ./boot-strap -o linux --prefix=/usr
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    mkdir -p "$DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/share/man/man1"
+    cd "bmake"
+    # Find the built binary - it might be in a subdir like 'linux'
+    bin_path=$(find . -name bmake -type f -executable | head -n 1)
+    cp "$bin_path" "$DESTDIR/usr/bin/bmake"
+    ln -sf bmake "$DESTDIR/usr/bin/make"
+    cp bmake.1 "$DESTDIR/usr/share/man/man1/"
+}

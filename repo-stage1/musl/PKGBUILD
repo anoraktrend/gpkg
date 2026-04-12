@@ -2,7 +2,7 @@
 # Use system 'make' to build musl
 
 pkgname="musl"
-pkgver="1.2.5"
+pkgver="1.2.6"
 pkgdesc="The lightweight C standard library"
 url="https://musl.libc.org/"
 source="https://musl.libc.org/releases/musl-$pkgver.tar.gz"
@@ -14,13 +14,12 @@ build() {
     echo "Building $pkgname-$pkgver using system tools..."
     cd "musl-$pkgver"
     ./configure --prefix=/usr --syslibdir=/lib
-    # Use host 'make'
-    make
+    # Use ABSOLUTE PATH to system make for Stage1
+    /usr/bin/make
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "musl-$pkgver"
-    # Use host 'make'
-    make DESTDIR="$DESTDIR" install
+    /usr/bin/make DESTDIR="$DESTDIR" install
 }

@@ -2,7 +2,7 @@
 # Use system 'make' to build BusyBox
 
 pkgname="busybox"
-pkgver="1.36.1"
+pkgver="1.37.0"
 pkgdesc="Swiss Army Knife of embedded Linux utilities"
 url="https://busybox.net/"
 source="https://busybox.net/downloads/busybox-$pkgver.tar.bz2"
@@ -13,14 +13,15 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver using system make..."
     cd "busybox-$pkgver"
-    # Use host 'make'
-    make CC=$CC HOSTCC=$CC defconfig
-    make CC=$CC HOSTCC=$CC
+    # Use ABSOLUTE PATH to system make for Stage1
+    /usr/bin/make CC=$CC HOSTCC=$CC defconfig
+    # Disable problematic TC applet
+    sed -i 's/CONFIG_TC=y/CONFIG_TC=n/' .config
+    /usr/bin/make CC=$CC HOSTCC=$CC
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "busybox-$pkgver"
-    # Use host 'make'
-    make CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
+    /usr/bin/make CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
 }

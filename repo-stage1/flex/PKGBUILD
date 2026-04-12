@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for flex (Stage1)
+# Use system 'make' to build flex
+
+pkgname="flex"
+pkgver="2.6.4"
+pkgdesc="A fast lexical analyzer generator"
+url="https://github.com/westes/flex"
+source="https://github.com/westes/flex/releases/download/v$pkgver/flex-$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "flex-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-nls \
+                CC=$CC
+    /usr/bin/make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "flex-$pkgver"
+    /usr/bin/make DESTDIR="$DESTDIR" install
+    # Link flex to lex
+    mkdir -p "$DESTDIR/usr/bin"
+    ln -sf flex "$DESTDIR/usr/bin/lex"
+}
+

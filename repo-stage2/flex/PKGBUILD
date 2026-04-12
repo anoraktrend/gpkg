@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for flex
+# POSIX shell compliant - EE Ethos
+
+pkgname="flex"
+pkgver="2.6.4"
+pkgdesc="A fast lexical analyzer generator"
+url="https://github.com/westes/flex"
+source="https://github.com/westes/flex/releases/download/v$pkgver/flex-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "flex-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-nls \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "flex-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+    # Link flex to lex
+    mkdir -p "$DESTDIR/usr/bin"
+    ln -sf flex "$DESTDIR/usr/bin/lex"
+}
+

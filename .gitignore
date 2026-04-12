@@ -7,3 +7,8 @@ db
 stage1-root
 repo-stage1/*/*/
 .firecrawl
+repo-stage2/*/*/
+repo/*/*/
+*.gpkg.*
+*pkg-*/
+*stage2-root/

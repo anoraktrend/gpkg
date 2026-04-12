@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for harfbuzz
+# POSIX shell compliant - EE Ethos
+
+pkgname="harfbuzz"
+pkgver="14.1.0"
+pkgdesc="An OpenType text shaping engine"
+url="https://harfbuzz.github.io/"
+source="https://github.com/harfbuzz/harfbuzz/releases/download/$pkgver/harfbuzz-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "harfbuzz-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Dtests=disabled \
+          -Ddocs=disabled \
+          -Dintrospection=disabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "harfbuzz-$pkgver"
+    DESTDIR="$DESTDIR" Samu -C build install
+}

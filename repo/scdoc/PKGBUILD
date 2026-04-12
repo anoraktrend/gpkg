@@ -1,0 +1,23 @@
+# gpkg PKGBUILD for scdoc
+# POSIX shell compliant - EE Ethos
+
+pkgname="scdoc"
+pkgver="1.11.3"
+pkgdesc="A simple man page generator"
+url="https://sr.ht/~sircmpwn/scdoc/"
+source="https://git.sr.ht/~sircmpwn/scdoc/archive/$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "scdoc-$pkgver"
+    ckati PREFIX=/usr
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "scdoc-$pkgver"
+    ckati PREFIX=/usr DESTDIR="$DESTDIR" install
+}

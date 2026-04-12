@@ -1,0 +1,28 @@
+# gpkg PKGBUILD for freetype
+# POSIX shell compliant - EE Ethos
+
+pkgname="freetype"
+pkgver="2.14.3"
+pkgdesc="A free, high-quality, and portable font engine"
+url="https://www.freetype.org/"
+source="https://downloads.sourceforge.net/freetype/freetype-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "freetype-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-dependency-tracking \
+                --without-harfbuzz \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "freetype-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}

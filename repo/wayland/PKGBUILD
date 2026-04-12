@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for wayland
+# POSIX shell compliant - EE Ethos
+
+pkgname="wayland"
+pkgver="1.25.0"
+pkgdesc="A computer protocol that specifies the communication between a display server and its clients"
+url="https://wayland.freedesktop.org/"
+source="https://gitlab.freedesktop.org/wayland/wayland/-/releases/$pkgver/downloads/wayland-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "wayland-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Ddocumentation=false \
+          -Dtests=false \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "wayland-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}

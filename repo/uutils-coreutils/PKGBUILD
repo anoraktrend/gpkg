@@ -1,0 +1,28 @@
+# gpkg PKGBUILD for uutils-coreutils
+# POSIX shell compliant - EE Ethos
+# Rust implementation of GNU coreutils
+
+pkgname="uutils-coreutils"
+pkgver="0.0.30"
+pkgdesc="Cross-platform Rust rewrite of the GNU coreutils"
+url="https://github.com/uutils/coreutils"
+source="https://github.com/uutils/coreutils/archive/refs/tags/$pkgver.tar.gz"
+
+# uutils requires Cargo (Rust)
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "coreutils-$pkgver"
+    
+    # Use bmake to build via the provided Makefile
+    # This will invoke cargo
+    bmake PROFILE=release
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "coreutils-$pkgver"
+    bmake PREFIX=/usr DESTDIR="$DESTDIR" install
+}

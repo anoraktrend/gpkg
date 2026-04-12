@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for libexpat
+# POSIX shell compliant - EE Ethos
+
+pkgname="libexpat"
+pkgver="2.6.4"
+pkgdesc="An XML parser library written in C"
+url="https://libexpat.github.io/"
+source="https://github.com/libexpat/libexpat/releases/download/R_${pkgver//./_}/expat-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "expat-$pkgver"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DEXPAT_BUILD_TESTS=OFF \
+          -DEXPAT_BUILD_EXAMPLES=OFF
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "expat-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

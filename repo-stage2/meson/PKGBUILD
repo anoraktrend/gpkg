@@ -1,0 +1,25 @@
+# gpkg PKGBUILD for meson
+# POSIX shell compliant - EE Ethos
+
+pkgname="meson"
+pkgver="1.7.0"
+pkgdesc="An open source build system meant to be extremely fast"
+url="https://mesonbuild.com/"
+source="https://github.com/mesonbuild/meson/releases/download/$pkgver/meson-$pkgver.tar.gz"
+
+# Meson requires Python
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    # Meson is python-based
+    cd "meson-$pkgver"
+    python3 setup.py build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "meson-$pkgver"
+    python3 setup.py install --root="$DESTDIR" --prefix=/usr
+}

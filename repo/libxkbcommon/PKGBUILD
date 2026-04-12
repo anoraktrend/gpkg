@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for libxkbcommon
+# POSIX shell compliant - EE Ethos
+
+pkgname="libxkbcommon"
+pkgver="1.13.1"
+pkgdesc="Keymap handling library"
+url="https://xkbcommon.org/"
+source="https://github.com/xkbcommon/libxkbcommon/archive/refs/tags/xkbcommon-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libxkbcommon-xkbcommon-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Denable-docs=false \
+          -Denable-wayland=true \
+          -Denable-x11=false \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libxkbcommon-xkbcommon-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

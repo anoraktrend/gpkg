@@ -1,0 +1,32 @@
+# gpkg PKGBUILD for pkgconf
+# POSIX shell compliant - EE Ethos
+
+pkgname="pkgconf"
+pkgver="2.5.1"
+pkgdesc="A tool for configuring and managing library compile and link flags"
+url="https://github.com/pkgconf/pkgconf"
+source="https://distfiles.ariadne.space/pkgconf/pkgconf-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "pkgconf-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-dependency-tracking \
+                CC=$CC
+    
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "pkgconf-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+    
+    # Symlink to pkg-config for compatibility
+    mkdir -p "$DESTDIR/usr/bin"
+    ln -sf pkgconf "$DESTDIR/usr/bin/pkg-config"
+}

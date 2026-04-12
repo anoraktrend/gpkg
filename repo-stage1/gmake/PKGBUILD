@@ -1,0 +1,28 @@
+# gpkg PKGBUILD for gmake (Stage1)
+# Use system 'make' to build GNU Make
+
+pkgname="gmake"
+pkgver="4.4.1"
+pkgdesc="GNU Make"
+url="https://www.gnu.org/software/make/"
+source="https://ftp.gnu.org/gnu/make/make-$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "make-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-nls \
+                --program-prefix=g \
+                CC=$CC
+    /usr/bin/make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "make-$pkgver"
+    /usr/bin/make DESTDIR="$DESTDIR" install
+}
+

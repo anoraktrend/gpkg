@@ -13,14 +13,13 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver using system make..."
     cd "toybox-$pkgver"
-    # Use host 'make'
-    make CC=$CC HOSTCC=$CC defconfig
-    make CC=$CC HOSTCC=$CC
+    # Use ABSOLUTE PATH to system make for Stage1
+    /usr/bin/make CC=$CC HOSTCC=$CC defconfig
+    /usr/bin/make CC=$CC HOSTCC=$CC
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "toybox-$pkgver"
-    # Use host 'make'
-    make PREFIX="$DESTDIR" install
+    /usr/bin/make PREFIX="$DESTDIR" install
 }

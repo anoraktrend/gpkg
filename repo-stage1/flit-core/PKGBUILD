@@ -1,0 +1,23 @@
+# gpkg PKGBUILD for flit-core
+# POSIX shell compliant - EE Ethos
+# Foundational bootstrap for Python PEP 517
+
+pkgname="flit-core"
+pkgver="3.12.0"
+pkgdesc="Distribution-building parts of Flit"
+url="https://github.com/pypa/flit"
+source="https://files.pythonhosted.org/packages/source/f/flit-core/flit_core-$pkgver.tar.gz"
+
+build() {
+    echo "flit-core is a bootstrap package."
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "flit_core-$pkgver"
+    # Manual install of flit_core to /usr/lib/python3.x/site-packages
+    pyver=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    sitedir="$DESTDIR/usr/lib/python$pyver/site-packages"
+    mkdir -p "$sitedir"
+    cp -r flit_core "$sitedir/"
+}

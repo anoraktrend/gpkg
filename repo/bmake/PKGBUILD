@@ -1,0 +1,29 @@
+# gpkg PKGBUILD for bmake
+# POSIX shell compliant - EE Ethos
+
+pkgname="bmake"
+pkgver="20260313"
+pkgdesc="Portable version of NetBSD make"
+url="https://www.crufty.net/help/sjg/bmake.html"
+source="http://www.crufty.net/ftp/pub/sjg/bmake-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "bmake"
+    # Use sh for bootstrap, then we can use bmake if it provides a Makefile
+    sh ./boot-strap -o linux --prefix=/usr
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    mkdir -p "$DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/share/man/man1"
+    cd "bmake"
+    bin_path=$(find . -name bmake -type f -executable | head -n 1)
+    cp "$bin_path" "$DESTDIR/usr/bin/bmake"
+    ln -sf bmake "$DESTDIR/usr/bin/make"
+    cp bmake.1 "$DESTDIR/usr/share/man/man1/"
+}

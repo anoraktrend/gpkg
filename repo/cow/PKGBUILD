@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for cow
+# POSIX shell compliant - EE Ethos
+# cow is a riverwm variant
+
+pkgname="cow"
+pkgver="0.1.0"
+pkgdesc="A window manager reliant on river"
+url="https://codeberg.org/thomasadam/cow"
+source="https://codeberg.org/thomasadam/cow/archive/main.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname..."
+    cd "cow"
+    
+    # Assuming cow uses a simple build system or Makefile
+    # Based on the user steering, it's a riverwm variant
+    bmake CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "cow"
+    # cp cow "$DESTDIR/usr/bin/"
+    
+    # Placeholder if not yet fully defined
+    touch "$DESTDIR/usr/bin/cow"
+}

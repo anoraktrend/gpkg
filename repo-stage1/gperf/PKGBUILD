@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for gperf
+# POSIX shell compliant - EE Ethos
+# Note: Allowed as an exception for GNU-dependent builds.
+
+pkgname="gperf"
+pkgver="3.1"
+pkgdesc="A perfect hash function generator"
+url="https://www.gnu.org/software/gperf/"
+source="http://ftp.gnu.org/pub/gnu/gperf/gperf-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions for CC)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "gperf-$pkgver"
+    ./configure --prefix=/usr \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "gperf-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}
+

@@ -1,0 +1,23 @@
+# gpkg PKGBUILD for lz4
+# POSIX shell compliant - EE Ethos
+
+pkgname="lz4"
+pkgver="1.10.0"
+pkgdesc="Extremely Fast Compression algorithm"
+url="https://lz4.org/"
+source="https://github.com/lz4/lz4/releases/download/v$pkgver/lz4-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "lz4-$pkgver"
+    bmake CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "lz4-$pkgver"
+    bmake PREFIX=/usr DESTDIR="$DESTDIR" install
+}

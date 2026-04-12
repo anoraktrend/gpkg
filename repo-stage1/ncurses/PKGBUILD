@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for ncurses (Stage1)
+# Use system 'make' to build ncurses
+
+pkgname="ncurses"
+pkgver="6.5"
+pkggdesc="System V Release 4.0 curses emulation library"
+url="https://www.gnu.org/software/ncurses/"
+source="https://ftp.gnu.org/pub/gnu/ncurses/ncurses-$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "ncurses-$pkgver"
+    ./configure --prefix=/usr \
+                --with-shared \
+                --without-debug \
+                --without-ada \
+                --enable-widec \
+                --disable-nls \
+                CC=$CC
+    /usr/bin/make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "ncurses-$pkgver"
+    /usr/bin/make DESTDIR="$DESTDIR" install
+}
+

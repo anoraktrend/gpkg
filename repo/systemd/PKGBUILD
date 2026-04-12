@@ -1,0 +1,39 @@
+# gpkg PKGBUILD for systemd
+# POSIX shell compliant - EE Ethos
+
+pkgname="systemd"
+pkgver="260.1"
+pkgdesc="A system and service manager for Linux"
+url="https://github.com/systemd/systemd-stable"
+source="https://github.com/systemd/systemd-stable/archive/refs/tags/v$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with musl support..."
+    cd "systemd-stable-$pkgver"
+    
+    # systemd uses Meson
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Dlibc=musl \
+          -Dkmod=disabled \
+          -Dblkid=disabled \
+          -Dmount=disabled \
+          -Dlibcryptsetup=disabled \
+          -Daudit=disabled \
+          -Dpam=disabled \
+          -Delfutils=disabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "systemd-stable-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

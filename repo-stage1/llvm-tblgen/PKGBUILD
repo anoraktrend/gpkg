@@ -15,7 +15,7 @@ build() {
     echo "Building $pkgname-$pkgver..."
     cd "llvm-$pkgver.src"
     
-    cmake -G Ninja -B build \
+    cbmake -G Ninja -B build \
           -DCMAKE_C_COMPILER=$CC \
           -DCMAKE_CXX_COMPILER=$CXX \
           -DCMAKE_BUILD_TYPE=Release \

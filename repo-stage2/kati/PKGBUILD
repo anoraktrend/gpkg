@@ -1,0 +1,28 @@
+# gpkg PKGBUILD for kati
+# POSIX shell compliant - EE Ethos
+# Implicitfield's kati fork (https://github.com/implicitfield/kati)
+
+pkgname="kati"
+pkgver="0.1.0"
+pkgdesc="Experimental GNU make clone"
+url="https://github.com/implicitfield/kati"
+source="https://github.com/implicitfield/kati/archive/refs/heads/make-linux.zip"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    # Note: extraction of make-linux.zip usually creates kati-make-linux/
+    cd "kati-make-linux"
+    ckati -f Makefile.ckati CC=$CC CXX=$CXX
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "kati-make-linux"
+    cp ckati "$DESTDIR/usr/bin/"
+    ln -sf ckati "$DESTDIR/usr/bin/make"
+}

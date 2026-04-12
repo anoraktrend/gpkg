@@ -1,0 +1,35 @@
+# gpkg PKGBUILD for libunwind
+# POSIX shell compliant - EE Ethos
+
+pkgname="libunwind"
+pkgver="18.1.8"
+pkgdesc="LLVM portable stack unwinding library"
+url="https://llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/libunwind-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libunwind-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DLIBUNWIND_USE_COMPILER_RT=ON \
+          -DLIBUNWIND_INSTALL_HEADERS=ON
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libunwind-$pkgver.src"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

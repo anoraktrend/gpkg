@@ -1,0 +1,29 @@
+# gpkg PKGBUILD for libexecinfo (Stage1)
+# Use system tools to build libexecinfo
+
+pkgname="libexecinfo"
+pkgver="1.1.0.19"
+pkgdesc="A quick-n-dirty BSD licensed clone of backtrace facility"
+url="https://github.com/fam007e/libexecinfo"
+source="https://github.com/fam007e/libexecinfo/archive/refs/tags/v$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "libexecinfo-$pkgver"
+    python3 gen.py --max-depth 128 --output stacktraverse.c
+    /usr/bin/make CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libexecinfo-$pkgver"
+    mkdir -p "$DESTDIR/usr/include"
+    mkdir -p "$DESTDIR/usr/lib"
+    cp execinfo.h "$DESTDIR/usr/include/"
+    cp libexecinfo.a "$DESTDIR/usr/lib/"
+    [ -f libexecinfo.so.1 ] && cp libexecinfo.so.1 "$DESTDIR/usr/lib/"
+    [ -f "$DESTDIR/usr/lib/libexecinfo.so.1" ] && ln -sf libexecinfo.so.1 "$DESTDIR/usr/lib/libexecinfo.so"
+}

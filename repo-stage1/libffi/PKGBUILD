@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for libffi
+# POSIX shell compliant - EE Ethos
+
+pkgname="libffi"
+pkgver="3.4.6"
+pkgdesc="A portable foreign function interface library"
+url="https://sourceware.org/libffi/"
+source="https://github.com/libffi/libffi/releases/download/v$pkgver/libffi-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libffi-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-multi-os-directory \
+                --disable-dependency-tracking \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libffi-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}

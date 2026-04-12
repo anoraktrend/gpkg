@@ -1,0 +1,21 @@
+# gpkg PKGBUILD for markupsafe
+# POSIX shell compliant - EE Ethos
+
+pkgname="markupsafe"
+pkgver="3.0.3"
+pkgdesc="Safely add untrusted strings to HTML/XML markup"
+url="https://palletsprojects.com/p/markupsafe/"
+source="https://files.pythonhosted.org/packages/source/m/markupsafe/markupsafe-$pkgver.tar.gz"
+
+build() {
+    echo "markupsafe bootstrap build..."
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "markupsafe-$pkgver"
+    pyver=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    sitedir="$DESTDIR/usr/lib/python$pyver/site-packages"
+    mkdir -p "$sitedir"
+    cp -r src/markupsafe "$sitedir/"
+}

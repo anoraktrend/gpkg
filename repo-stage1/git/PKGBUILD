@@ -1,0 +1,57 @@
+# gpkg PKGBUILD for git (Stage1)
+# POSIX shell compliant - EE Ethos
+
+pkgname="git"
+pkgver="2.47.0"
+pkgdesc="Distributed version control system"
+url="https://git-scm.com/"
+source="https://mirrors.edge.kernel.org/pub/software/scm/git/git-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "git-$pkgver"
+    
+    # Fix conflict with C23 unreachable() macro
+    export CFLAGS="$CFLAGS -Dunreachable=git_unreachable"
+
+    # Use system make for Stage1 because kati has issues with git's complex Makefile
+    if [ ! -f configure ]; then
+        /usr/bin/make configure
+    fi
+
+    ./configure --prefix=/usr \
+                --with-curl \
+                --with-openssl \
+                --with-zlib \
+                --without-tcltk \
+                CC=$CC
+    
+    /usr/bin/make NO_REGEX=NeedsStartEnd \
+                 NO_TCLTK=1 \
+                 NO_EXPAT=1 \
+                 NO_GETTEXT=1 \
+                 NO_MSGFMT_EXTENDED_OPTIONS=1 \
+                 prefix=/usr \
+                 gitexecdir=lib/gitcore \
+                 INSTALL_SYMLINKS=1 \
+                 CC=$CC \
+                 all
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "git-$pkgver"
+    /usr/bin/make NO_REGEX=NeedsStartEnd \
+                 NO_TCLTK=1 \
+                 NO_EXPAT=1 \
+                 NO_GETTEXT=1 \
+                 NO_MSGFMT_EXTENDED_OPTIONS=1 \
+                 install \
+                 prefix=/usr \
+                 gitexecdir=lib/gitcore \
+                 DESTDIR="$DESTDIR" \
+                 INSTALL_SYMLINKS=1
+}

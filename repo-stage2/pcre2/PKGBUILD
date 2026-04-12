@@ -1,0 +1,35 @@
+# gpkg PKGBUILD for pcre2
+# POSIX shell compliant - EE Ethos
+
+pkgname="pcre2"
+pkgver="10.45"
+pkgdesc="Perl-compatible regular expression library"
+url="https://www.pcre.org/"
+source="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pkgver/pcre2-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "pcre2-$pkgver"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DPCRE2_BUILD_PCRE2_8=ON \
+          -DPCRE2_BUILD_PCRE2_16=ON \
+          -DPCRE2_BUILD_PCRE2_32=ON \
+          -DPCRE2_SUPPORT_JIT=ON
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "pcre2-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

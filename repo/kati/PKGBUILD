@@ -16,7 +16,7 @@ build() {
     echo "Building $pkgname-$pkgver..."
     # Note: extraction of make-linux.zip usually creates kati-make-linux/
     cd "kati-make-linux"
-    ckati -f Makefile.ckati CC=$CC CXX=$CXX
+    bmake -f Makefile.bmake CC=$CC CXX=$CXX
 }
 
 package() {
@@ -24,5 +24,6 @@ package() {
     mkdir -p "$DESTDIR/usr/bin"
     cd "kati-make-linux"
     cp ckati "$DESTDIR/usr/bin/"
-    ln -sf ckati "$DESTDIR/usr/bin/make"
+    # We are using bmake as the system 'make', so we don't symlink ckati to make
 }
+

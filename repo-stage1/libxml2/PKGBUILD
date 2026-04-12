@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for libxml2 (Stage1)
+# Use system 'make' to build libxml2
+
+pkgname="libxml2"
+pkgver="2.15.2"
+pkgdesc="XML parsing library, version 2"
+url="https://gitlab.gnome.org/GNOME/libxml2"
+source="https://download.gnome.org/sources/libxml2/${pkgver%.*}/libxml2-$pkgver.tar.xz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "libxml2-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-dependency-tracking \
+                --without-python \
+                --without-icu \
+                --without-lzma \
+                CC=$CC
+    /usr/bin/make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libxml2-$pkgver"
+    /usr/bin/make DESTDIR="$DESTDIR" install
+}
+

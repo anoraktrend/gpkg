@@ -2,7 +2,7 @@
 # POSIX shell compliant - EE Ethos
 
 pkgname="busybox"
-pkgver="1.36.1"
+pkgver="1.37.0"
 pkgdesc="Swiss Army Knife of embedded Linux utilities"
 url="https://busybox.net/"
 source="https://busybox.net/downloads/busybox-$pkgver.tar.bz2"
@@ -13,12 +13,14 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver with $CC..."
     cd "busybox-$pkgver"
-    ckati CC=$CC HOSTCC=$CC defconfig
-    ckati CC=$CC HOSTCC=$CC
+    # User steering: use gmake for GNU-dependent builds
+    gmake CC=$CC HOSTCC=$CC defconfig
+    sed -i 's/CONFIG_TC=y/CONFIG_TC=n/' .config
+    gmake CC=$CC HOSTCC=$CC
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "busybox-$pkgver"
-    ckati CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
+    gmake CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
 }

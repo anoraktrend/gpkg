@@ -1,0 +1,35 @@
+# gpkg PKGBUILD for git
+# POSIX shell compliant - EE Ethos
+
+pkgname="git"
+pkgver="2.53.0"
+pkgdesc="Distributed version control system"
+url="https://git-scm.com/"
+source="https://github.com/git/git/archive/refs/tags/v$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "git-$pkgver"
+    
+    if [ ! -f configure ]; then
+        bmake configure
+    fi
+
+    ./configure --prefix=/usr \
+                --with-curl \
+                --with-openssl \
+                --with-zlib \
+                --without-tcltk
+    
+    bmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease all
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "git-$pkgver"
+    bmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease DESTDIR="$DESTDIR" install
+}
+

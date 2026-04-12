@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for libbsd
+# POSIX shell compliant - EE Ethos
+
+pkgname="libbsd"
+pkgver="0.12.2"
+pkgdesc="Utility functions from BSD systems"
+url="https://libbsd.freedesktop.org/"
+source="https://libbsd.freedesktop.org/releases/libbsd-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libbsd-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-dependency-tracking \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libbsd-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}
+

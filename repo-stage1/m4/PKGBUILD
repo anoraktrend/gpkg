@@ -1,0 +1,28 @@
+# gpkg PKGBUILD for m4
+# POSIX shell compliant - EE Ethos
+# Note: Allowed as an exception for GNU-dependent builds.
+
+pkgname="m4"
+pkgver="1.4.19"
+pkgdesc="GNU M4"
+url="https://www.gnu.org/software/m4/"
+source="https://ftp.gnu.org/gnu/m4/m4-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions for CC)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "m4-$pkgver"
+    ./configure --prefix=/usr \
+                --disable-nls \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "m4-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}
+

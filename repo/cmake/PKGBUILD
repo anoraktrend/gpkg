@@ -1,13 +1,13 @@
-# gpkg PKGBUILD for cmake
-# POSIX shell compliant - EE Ethos
+# gpkg PKGBUILD for cmake (Stage1)
+# Use system tools to build CMake
 
 pkgname="cmake"
-pkgver="3.30.2"
+pkgver="4.3.1"
 pkggdesc="A cross-platform, open-source build system generator"
 url="https://cmake.org/"
 source="https://github.com/Kitware/CMake/releases/download/v$pkgver/cmake-$pkgver.tar.gz"
 
-# Tools to be used (no GNU assumptions)
+# Use system compilers
 CC="clang"
 CXX="clang++"
 
@@ -16,11 +16,9 @@ build() {
     cd "cmake-$pkgver"
     
     # Fix missing stdint.h in some environments
-    sed -i '16i #include <stdint.h>' Utilities/cmcppdap/include/dap/network.h
+    find . -name "network.h" -exec sed -i '16i #include <stdint.h>' {} +
 
-    # Using CMake's own bootstrap script to avoid needing an existing CMake
-    # --parallel for faster builds on multi-core systems
-    # --generator=Ninja to use our samu (ninja) replacement
+    # Using CMake's own bootstrap script
     ./bootstrap --prefix=/usr \
                 --parallel=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1) \
                 --generator=Ninja \
@@ -37,5 +35,6 @@ build() {
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "cmake-$pkgver"
-    DESTDIR="$DESTDIR" Samu install
+    DESTDIR="$DESTDIR" samu install
 }
+

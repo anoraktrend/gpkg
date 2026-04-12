@@ -1,0 +1,32 @@
+# gpkg PKGBUILD for json-c
+# POSIX shell compliant - EE Ethos
+
+pkgname="json-c"
+pkgver="0.18"
+pkggdesc="A JSON implementation in C"
+url="https://github.com/json-c/json-c"
+source="https://s3.amazonaws.com/json-c_releases/releases/json-c-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "json-c-$pkgver"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "json-c-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

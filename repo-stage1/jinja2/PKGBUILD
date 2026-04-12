@@ -1,0 +1,22 @@
+# gpkg PKGBUILD for jinja2
+# POSIX shell compliant - EE Ethos
+
+pkgname="jinja2"
+pkgver="3.1.6"
+pkgdesc="A small but fast and easy to use stand-alone template engine for Python"
+url="https://palletsprojects.com/p/jinja/"
+source="https://files.pythonhosted.org/packages/source/J/Jinja2/jinja2-$pkgver.tar.gz"
+
+build() {
+    echo "jinja2 bootstrap build..."
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "jinja2-$pkgver"
+    pyver=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    sitedir="$DESTDIR/usr/lib/python$pyver/site-packages"
+    mkdir -p "$sitedir"
+    # Copy source directly for bootstrap
+    cp -r src/jinja2 "$sitedir/"
+}

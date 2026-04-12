@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for glib
+# POSIX shell compliant - EE Ethos
+
+pkgname="glib"
+pkgver="2.88.0"
+pkgdesc="A library that provides the core object system and other foundational building blocks"
+url="https://wiki.gnome.org/Projects/GLib"
+source="https://download.gnome.org/sources/glib/${pkgver%.*}/glib-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "glib-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Dtests=false \
+          -Dintrospection=disabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "glib-$pkgver"
+    DESTDIR="$DESTDIR" Samu -C build install
+}

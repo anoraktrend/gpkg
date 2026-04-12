@@ -1,5 +1,5 @@
-# gpkg PKGBUILD for aria2
-# POSIX shell compliant - EE Ethos
+# gpkg PKGBUILD for aria2 (Stage1)
+# Use system tools to build aria2
 
 pkgname="aria2"
 pkgver="1.37.0"
@@ -7,14 +7,15 @@ pkgdesc="A high-performance download utility"
 url="https://aria2.github.io/"
 source="https://github.com/aria2/aria2/releases/download/release-$pkgver/aria2-$pkgver.tar.xz"
 
-# Tools to be used (no GNU assumptions)
+# Use system compilers
 CC="clang"
 CXX="clang++"
 
 build() {
-    echo "Building $pkgname-$pkgver..."
+    echo "Building $pkgname-$pkgver using system tools..."
     cd "aria2-$pkgver"
     
+    # aria2 uses Autotools (configure/bmake)
     ./configure --prefix=/usr \
                 --disable-nls \
                 --disable-dependency-tracking \
@@ -22,12 +23,12 @@ build() {
                 --with-expat \
                 --without-sqlite3
     
-    # Use ckati (GNU make clone)
-    ckati
+    # Use host bmake
+    bmake
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "aria2-$pkgver"
-    ckati DESTDIR="$DESTDIR" install
+    bmake DESTDIR="$DESTDIR" install
 }

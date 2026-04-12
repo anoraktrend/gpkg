@@ -1,0 +1,29 @@
+# gpkg PKGBUILD for freetype (Stage1)
+# Use system 'make' to build freetype
+
+pkgname="freetype"
+pkgver="2.14.3"
+pkgdesc="A free, high-quality, and portable font engine"
+url="https://www.freetype.org/"
+source="https://downloads.sourceforge.net/freetype/freetype-$pkgver.tar.xz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "freetype-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-dependency-tracking \
+                --without-harfbuzz \
+                CC=$CC
+    /usr/bin/make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "freetype-$pkgver"
+    /usr/bin/make DESTDIR="$DESTDIR" install
+}
+

@@ -1,0 +1,32 @@
+# gpkg PKGBUILD for fontconfig
+# POSIX shell compliant - EE Ethos
+
+pkgname="fontconfig"
+pkgver="2.17.1"
+pkggdesc="A library for configuring and customizing font access"
+url="https://www.fontconfig.org/"
+source="https://gitlab.freedesktop.org/api/v4/projects/890/packages/generic/fontconfig/$pkgver/fontconfig-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "fontconfig-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Ddoc=disabled \
+          -Dtests=disabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "fontconfig-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

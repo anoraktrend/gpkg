@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for openssh
+# POSIX shell compliant - EE Ethos
+
+pkgname="openssh"
+pkgver="10.3p1"
+pkgdesc="A portable version of OpenSSH"
+url="https://www.openssh.com/"
+source="https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "openssh-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --with-ssl-dir=/usr \
+                --with-zlib=/usr \
+                --disable-strip \
+                --disable-etc-default-login \
+                CC=$CC
+    
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "openssh-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}

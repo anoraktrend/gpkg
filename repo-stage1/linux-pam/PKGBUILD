@@ -1,0 +1,32 @@
+# gpkg PKGBUILD for linux-pam
+# POSIX shell compliant - EE Ethos
+
+pkgname="linux-pam"
+pkgver="1.7.0"
+pkgdesc="Pluggable Authentication Modules for Linux"
+url="https://github.com/linux-pam/linux-pam"
+source="https://github.com/linux-pam/linux-pam/releases/download/v$pkgver/Linux-PAM-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "Linux-PAM-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --sysconfdir=/etc \
+                --libdir=/usr/lib \
+                --disable-nis \
+                --disable-regenerate-docu \
+                --disable-nls \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "Linux-PAM-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}
+

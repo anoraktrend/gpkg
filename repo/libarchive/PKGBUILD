@@ -1,0 +1,39 @@
+# gpkg PKGBUILD for libarchive
+# POSIX shell compliant - EE Ethos
+
+pkgname="libarchive"
+pkgver="3.8.6"
+pkggdesc="Multi-format archive and compression library"
+url="https://www.libarchive.org/"
+source="https://github.com/libarchive/libarchive/releases/download/v$pkgver/libarchive-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libarchive-$pkgver"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DENABLE_NETTLE=OFF \
+          -DENABLE_OPENSSL=ON \
+          -DENABLE_LZO=OFF \
+          -DENABLE_LZMA=ON \
+          -DENABLE_ZSTD=ON \
+          -DENABLE_LZ4=ON \
+          -DENABLE_BZip2=ON \
+          -DENABLE_ZLIB=ON
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libarchive-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

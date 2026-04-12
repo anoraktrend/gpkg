@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for byacc
+# POSIX shell compliant - EE Ethos
+
+pkgname="byacc"
+pkgver="20240109"
+pkgdesc="The Best Yacc"
+url="http://invisible-island.net/byacc/byacc.html"
+source="https://invisible-mirror.net/archives/byacc/byacc-$pkgver.tgz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "byacc-$pkgver"
+    ./configure --prefix=/usr \
+                --program-transform-name='s/^/b/' \
+                CC=$CC
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "byacc-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+    # Link byacc to yacc
+    mkdir -p "$DESTDIR/usr/bin"
+    ln -sf byacc "$DESTDIR/usr/bin/yacc"
+}
+

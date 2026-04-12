@@ -1,0 +1,30 @@
+# gpkg PKGBUILD for pixman
+# POSIX shell compliant - EE Ethos
+
+pkgname="pixman"
+pkgver="0.46.0"
+pkgdesc="Low-level pixel manipulation library"
+url="https://pixman.org/"
+source="https://cairographics.org/releases/pixman-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "pixman-$pkgver"
+    
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "pixman-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

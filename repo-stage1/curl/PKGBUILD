@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for curl
+# POSIX shell compliant - EE Ethos
+
+pkgname="curl"
+pkgver="8.19.0"
+pkggdesc="A command line tool and library for transferring data with URLs"
+url="https://curl.se/"
+source="https://curl.se/download/curl-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "curl-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --with-openssl \
+                --with-zlib \
+                --disable-manual \
+                --disable-dependency-tracking \
+                CC=$CC
+    
+    bmake
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "curl-$pkgver"
+    bmake DESTDIR="$DESTDIR" install
+}

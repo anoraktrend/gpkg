@@ -2,7 +2,7 @@
 # Use system 'make' to build kernel headers
 
 pkgname="linux-headers"
-pkgver="6.6.26"
+pkgver="6.19.12"
 pkgdesc="API headers required for userspace programs to communicate with the Linux kernel"
 url="https://www.kernel.org/"
 source="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$pkgver.tar.xz"
@@ -13,15 +13,16 @@ CC="clang"
 build() {
     echo "Preparing Linux kernel headers $pkgver using system make..."
     cd "linux-$pkgver"
-    # Use a relative path for INSTALL_HDR_PATH combined with DESTDIR
-    # Actually, headers_install logic often uses INSTALL_HDR_PATH as the absolute root.
-    # We will try to install to a local folder first, then move it.
-    make ARCH=x86_64 HOSTCC=$CC CC=$CC headers_install INSTALL_HDR_PATH="staged_headers"
+    # Use a LOCAL relative path within the build dir
+    rm -rf staged_dest
+    mkdir -p staged_dest
+    # Pass an absolute path but one that we own
+    /usr/bin/make LLVM=1 ARCH=x86_64 HOSTCC=$CC CC=$CC headers_install INSTALL_HDR_PATH="$(pwd)/staged_dest"
 }
 
 package() {
-    echo "Installing headers from staged_headers into $DESTDIR/usr"
+    echo "Installing headers from staged_dest into $DESTDIR/usr"
     mkdir -p "$DESTDIR/usr"
-    cd "linux-$pkgver"
-    cp -r staged_headers/include "$DESTDIR/usr/"
+    # The kernel install puts them in staged_dest/include
+    cp -r "linux-$pkgver/staged_dest/include" "$DESTDIR/usr/"
 }

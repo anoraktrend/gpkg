@@ -1,0 +1,37 @@
+# gpkg PKGBUILD for rnp
+# POSIX shell compliant - EE Ethos
+
+pkgname="rnp"
+pkgver="0.18.1"
+pkgdesc="A high-performance OpenPGP implementation"
+url="https://github.com/rnpgp/rnp"
+source="https://github.com/rnpgp/rnp/releases/download/v$pkgver/rnp-v$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "rnp-v$pkgver"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DCRYPTO_BACKEND=openssl \
+          -DBUILD_SHARED_LIBS=ON \
+          -DDOWNLOAD_GTEST=OFF \
+          -DDOWNLOAD_JSONC=OFF
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "rnp-v$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+
