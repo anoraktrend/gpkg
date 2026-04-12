@@ -1,0 +1,32 @@
+# gpkg PKGBUILD for compiler-rt
+# POSIX shell compliant - EE Ethos
+
+pkgname="compiler-rt"
+pkgver="18.1.8"
+pkgdesc="Low-level runtime libraries for LLVM"
+url="https://compiler-rt.llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/compiler-rt-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "compiler-rt-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "compiler-rt-$pkgver.src"
+    DESTDIR="$DESTDIR" samu -C build install
+}

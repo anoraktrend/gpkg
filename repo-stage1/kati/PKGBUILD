@@ -1,0 +1,27 @@
+# gpkg PKGBUILD for kati (Stage1)
+# Use system 'make' to bootstrap our GNU make clone
+
+pkgname="kati"
+pkgver="0.1.0"
+pkgdesc="Experimental GNU make clone"
+url="https://github.com/implicitfield/kati"
+source="https://github.com/implicitfield/kati/archive/refs/heads/make-linux.zip"
+
+# Use system compilers
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Bootstrapping $pkgname-$pkgver using system make..."
+    cd "kati-make-linux"
+    # Use host 'make' to build ckati
+    make -f Makefile.ckati CC=$CC CXX=$CXX
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "kati-make-linux"
+    cp ckati "$DESTDIR/usr/bin/"
+    ln -sf ckati "$DESTDIR/usr/bin/make"
+}

@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for samu
+# POSIX shell compliant - EE Ethos
+# samu (samurai) - C99 Ninja replacement
+
+pkgname="samu"
+pkgver="1.2"
+pkgdesc="A Ninja-compatible build tool written in C99"
+url="https://github.com/michaelforney/samurai"
+source="https://github.com/michaelforney/samurai/archive/refs/tags/1.2.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "samurai-$pkgver"
+    ckati CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "samurai-$pkgver"
+    cp samu "$DESTDIR/usr/bin/"
+    ln -sf samu "$DESTDIR/usr/bin/ninja"
+}

@@ -1,0 +1,36 @@
+# gpkg PKGBUILD for libc++
+# POSIX shell compliant - EE Ethos
+
+pkgname="libcxx"
+pkgver="18.1.8"
+pkgdesc="LLVM C++ Standard Library"
+url="https://libcxx.llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/libcxx-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "libcxx-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DLIBCXX_USE_COMPILER_RT=ON \
+          -DLIBCXX_CXX_ABI=libcxxabi \
+          -DLIBCXX_CXX_ABI_INCLUDE_PATHS=/usr/include
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "libcxx-$pkgver.src"
+    DESTDIR="$DESTDIR" Samu -C build install
+}
+

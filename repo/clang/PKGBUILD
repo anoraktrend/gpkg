@@ -1,0 +1,34 @@
+# gpkg PKGBUILD for clang
+# POSIX shell compliant - EE Ethos
+
+pkgname="clang"
+pkgver="18.1.8"
+pkgdesc="LLVM C and C++ front-end compiler"
+url="https://clang.llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/clang-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "clang-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu \
+          -DCLANG_BUILD_TOOLS=ON
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "clang-$pkgver.src"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

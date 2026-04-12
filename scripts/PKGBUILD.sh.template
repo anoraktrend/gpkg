@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# gpkg PKGBUILD - POSIX shell compliant
+# Follows EE Ethos - Minimalist & Portable
+
+pkgname="testpkg"
+pkgver="1.0.0"
+pkgdesc="A test package for gpkg"
+maintainer="Lucy <lucy@example.com>"
+
+build() {
+    echo "Running build for $pkgname-$pkgver"
+    # Logic to compile/package
+}
+
+package() {
+    echo "Running package for $pkgname-$pkgver"
+    # Logic to move files to DESTDIR
+}

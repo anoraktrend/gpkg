@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for busybox (Stage1)
+# Use system 'make' to build BusyBox
+
+pkgname="busybox"
+pkgver="1.36.1"
+pkgdesc="Swiss Army Knife of embedded Linux utilities"
+url="https://busybox.net/"
+source="https://busybox.net/downloads/busybox-$pkgver.tar.bz2"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system make..."
+    cd "busybox-$pkgver"
+    # Use host 'make'
+    make CC=$CC HOSTCC=$CC defconfig
+    make CC=$CC HOSTCC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "busybox-$pkgver"
+    # Use host 'make'
+    make CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
+}

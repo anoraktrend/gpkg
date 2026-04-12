@@ -1,0 +1,9 @@
+GEMINI.md
+gpkg
+*gpkg.tar.gz
+*pkg-*
+src-cache
+db
+stage1-root
+repo-stage1/*/*/
+.firecrawl

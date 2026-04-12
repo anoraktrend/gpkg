@@ -1,0 +1,22 @@
+# gpkg PKGBUILD for linux-headers
+# POSIX shell compliant - EE Ethos
+
+pkgname="linux-headers"
+pkgver="6.6.26"
+pkgdesc="API headers required for userspace programs to communicate with the Linux kernel"
+url="https://www.kernel.org/"
+source="https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Preparing Linux kernel headers $pkgver..."
+    cd "linux-$pkgver"
+    ckati ARCH=x86_64 HOSTCC=$CC CC=$CC headers_install INSTALL_HDR_PATH="$DESTDIR/usr"
+}
+
+package() {
+    echo "Installing headers into $DESTDIR/usr/include"
+    # Done in build step for kernel headers
+}

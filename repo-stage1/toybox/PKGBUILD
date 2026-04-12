@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for toybox (Stage1)
+# Use system 'make' to build ToyBox
+
+pkgname="toybox"
+pkgver="0.8.11"
+pkgdesc="BSD-licensed alternative to BusyBox"
+url="http://www.landley.net/toybox/"
+source="https://github.com/landley/toybox/archive/refs/tags/$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system make..."
+    cd "toybox-$pkgver"
+    # Use host 'make'
+    make CC=$CC HOSTCC=$CC defconfig
+    make CC=$CC HOSTCC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "toybox-$pkgver"
+    # Use host 'make'
+    make PREFIX="$DESTDIR" install
+}

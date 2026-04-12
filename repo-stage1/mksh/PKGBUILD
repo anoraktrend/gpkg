@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for mksh
+# POSIX shell compliant - EE Ethos
+
+pkgname="mksh"
+pkgver="R59c"
+pkgdesc="MirBSD Korn Shell - the primary system shell"
+url="http://www.mirbsd.org/mksh.htm"
+source="http://www.mirbsd.org/MirOS/dist/mir/mksh/mksh-$pkgver.tgz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "mksh"
+    sh Build.sh -r -c $CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/bin"
+    cd "mksh"
+    mkdir -p "$DESTDIR/bin"
+    cp mksh "$DESTDIR/bin/"
+    ln -sf mksh "$DESTDIR/bin/ksh"
+    ln -sf mksh "$DESTDIR/bin/sh"
+}

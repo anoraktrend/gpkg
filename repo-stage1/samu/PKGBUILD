@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for samu (Stage1)
+# Use system 'make' to bootstrap samu
+
+pkgname="samu"
+pkgver="1.2"
+pkgdesc="A Ninja-compatible build tool written in C99"
+url="https://github.com/michaelforney/samurai"
+source="https://github.com/michaelforney/samurai/archive/refs/tags/1.2.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system make..."
+    cd "samurai-$pkgver"
+    # Use host 'make' (since ckati is still being bootstrapped)
+    make CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "samurai-$pkgver"
+    cp samu "$DESTDIR/usr/bin/"
+    ln -sf samu "$DESTDIR/usr/bin/ninja"
+}

@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for lld
+# POSIX shell compliant - EE Ethos
+
+pkgname="lld"
+pkgver="18.1.8"
+pkgdesc="LLVM linker"
+url="https://lld.llvm.org/"
+source="https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/lld-$pkgver.src.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "lld-$pkgver.src"
+    
+    cmake -G Ninja -B build \
+          -DCMAKE_C_COMPILER=$CC \
+          -DCMAKE_CXX_COMPILER=$CXX \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_MAKE_PROGRAM=samu
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "lld-$pkgver.src"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

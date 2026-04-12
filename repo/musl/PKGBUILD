@@ -1,0 +1,24 @@
+# gpkg PKGBUILD for musl libc
+# POSIX shell compliant - EE Ethos
+
+pkgname="musl"
+pkgver="1.2.5"
+pkgdesc="The lightweight C standard library"
+url="https://musl.libc.org/"
+source="https://musl.libc.org/releases/musl-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "musl-$pkgver"
+    ./configure --prefix=/usr --syslibdir=/lib
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "musl-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}

@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for musl libc (Stage1)
+# Use system 'make' to build musl
+
+pkgname="musl"
+pkgver="1.2.5"
+pkgdesc="The lightweight C standard library"
+url="https://musl.libc.org/"
+source="https://musl.libc.org/releases/musl-$pkgver.tar.gz"
+
+# Use system compilers
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver using system tools..."
+    cd "musl-$pkgver"
+    ./configure --prefix=/usr --syslibdir=/lib
+    # Use host 'make'
+    make
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "musl-$pkgver"
+    # Use host 'make'
+    make DESTDIR="$DESTDIR" install
+}

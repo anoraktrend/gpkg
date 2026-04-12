@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for aria2
+# POSIX shell compliant - EE Ethos
+
+pkgname="aria2"
+pkgver="1.37.0"
+pkgdesc="A high-performance download utility"
+url="https://aria2.github.io/"
+source="https://github.com/aria2/aria2/releases/download/release-$pkgver/aria2-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "aria2-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-nls \
+                --disable-dependency-tracking \
+                --without-libxml2 \
+                --with-expat \
+                --without-sqlite3
+    
+    # Use ckati (GNU make clone)
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "aria2-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}

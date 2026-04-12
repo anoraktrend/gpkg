@@ -1,0 +1,24 @@
+# gpkg PKGBUILD for busybox
+# POSIX shell compliant - EE Ethos
+
+pkgname="busybox"
+pkgver="1.36.1"
+pkgdesc="Swiss Army Knife of embedded Linux utilities"
+url="https://busybox.net/"
+source="https://busybox.net/downloads/busybox-$pkgver.tar.bz2"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver with $CC..."
+    cd "busybox-$pkgver"
+    ckati CC=$CC HOSTCC=$CC defconfig
+    ckati CC=$CC HOSTCC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "busybox-$pkgver"
+    ckati CC=$CC HOSTCC=$CC CONFIG_PREFIX="$DESTDIR" install
+}
