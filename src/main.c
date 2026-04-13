@@ -280,61 +280,6 @@ int extract_source(const char *pkgdir, const char *url) {
     return -1;
 }
 
-int run_script(const char *script_name, int argc, char *argv[]) {
-    char script_path[4096];
-    if (gpkg_path_join(script_path, PKG_SCRIPTS_PATH, script_name, sizeof(script_path)) < 0) {
-        fprintf(stderr, "Error: Script path too long for %s\n", script_name);
-        return -1;
-    }
-
-    struct stat st;
-    if (stat(script_path, &st) != 0) {
-
-        perror("stat");
-        fprintf(stderr, "Error: Script '%s' not found or inaccessible.\n", script_path);
-        return -1;
-    }
-
-    pid_t pid = fork();
-
-    if (pid == -1) {
-        perror("fork");
-        return -1;
-    }
-
-    if (pid == 0) {
-        /* Child process */
-        char **child_argv = malloc((argc + 3) * sizeof(char *));
-        if (child_argv == nullptr) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
-
-        child_argv[0] = strdup("/bin/sh");
-        child_argv[1] = strdup(script_path);
-
-        for (int i = 0; i < argc; i++) {
-            child_argv[i + 2] = strdup(argv[i]);
-        }
-        child_argv[argc + 2] = nullptr;
-
-        execv("/bin/sh", child_argv);
-        perror("execv");
-        exit(EXIT_FAILURE);
-    } else {
-        /* Parent process */
-        int status;
-        if (waitpid(pid, &status, 0) == -1) {
-            perror("waitpid");
-            return -1;
-        }
-        if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
-        }
-        return -1;
-    }
-}
-
 int gpkg_install(const char *pkgfile) {
     struct stat st;
     if (stat(pkgfile, &st) != 0) {
@@ -455,6 +400,71 @@ int gpkg_remove(const char *pkgname_ver) {
     return 0;
 }
 
+int gpkg_patch(const char *pkgdir, const char *pkgname) {
+    char patches_dir[4096];
+    if (gpkg_path_join(patches_dir, pkgdir, "patches", sizeof(patches_dir)) < 0) return -1;
+
+    struct stat st;
+    if (stat(patches_dir, &st) != 0 || !S_ISDIR(st.st_mode)) {
+        return 0; // No patches
+    }
+
+    printf("Applying patches for %s...\n", pkgname);
+
+    /* Find source directory (heuristic) */
+    char src_dir[4096];
+    gpkg_strscpy(src_dir, pkgdir, sizeof(src_dir)); // Default to pkgdir
+
+    DIR *d = opendir(pkgdir);
+    if (d) {
+        struct dirent *ent;
+        while ((ent = readdir(d)) != nullptr) {
+            if (ent->d_name[0] == '.') continue;
+            if (strcmp(ent->d_name, "patches") == 0) continue;
+            
+            char full_path[4096];
+            gpkg_path_join(full_path, pkgdir, ent->d_name, sizeof(full_path));
+            struct stat s;
+            if (stat(full_path, &s) == 0 && S_ISDIR(s.st_mode)) {
+                /* Found a subdirectory, likely the source */
+                gpkg_strscpy(src_dir, full_path, sizeof(src_dir));
+                break; 
+            }
+        }
+        closedir(d);
+    }
+
+    DIR *pd = opendir(patches_dir);
+    if (!pd) return -1;
+
+    struct dirent *pent;
+    while ((pent = readdir(pd)) != nullptr) {
+        if (strstr(pent->d_name, ".patch")) {
+            printf("Applying %s...\n", pent->d_name);
+            char patch_path[4096];
+            gpkg_path_join(patch_path, patches_dir, pent->d_name, sizeof(patch_path));
+
+            char *patch_argv[] = {(char*)"patch", (char*)"-p1", (char*)"-d", (char*)src_dir, (char*)"-i", (char*)patch_path, nullptr};
+            run_command("patch", patch_argv);
+        }
+    }
+    closedir(pd);
+    return 0;
+}
+
+int gpkg_package_archive(const char *pkgname, const char *pkgver, const char *destdir) {
+    char pkgfile[4096];
+    if (snprintf(pkgfile, sizeof(pkgfile), "%s-%s.gpkg", pkgname, pkgver) >= (int)sizeof(pkgfile)) {
+        fprintf(stderr, "Error: Package filename too long.\n");
+        return -1;
+    }
+
+    printf("Creating package %s...\n", pkgfile);
+    char *tar_argv[] = {(char*)"tar", (char*)"-czf", pkgfile, (char*)"-C", (char*)destdir, (char*)".", nullptr};
+    return run_command("tar", tar_argv);
+}
+
+
 void list_packages(void) {
     DIR *db_dir = opendir(PKG_DB_PATH);
     if (db_dir == nullptr) {
@@ -539,10 +549,58 @@ int main(int argc, char *argv[]) {
                 }
                 free(src_dup);
             }
-            int res = run_script("build_pkg.sh", 1, &argv[2]);
+
+            /* Apply patches */
+            if (gpkg_patch(pkgdir, info->pkgname) != 0) {
+                fprintf(stderr, "Error: Failed to apply patches.\n");
+                free_pkg_info(info);
+                free(repo);
+                return EXIT_FAILURE;
+            }
+
+            /* Setup destination directory */
+            char destdir[4096];
+            snprintf(destdir, sizeof(destdir), "pkg-%s", info->pkgname);
+            char setup_cmd[8192];
+            snprintf(setup_cmd, sizeof(setup_cmd), "rm -rf %s && mkdir -p %s", destdir, destdir);
+            system(setup_cmd);
+
+            /* Run build/package via shell */
+            char abs_destdir[4096];
+            char cwd[4096];
+            if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+                snprintf(abs_destdir, sizeof(abs_destdir), "%s/%s", cwd, destdir);
+            } else {
+                gpkg_strscpy(abs_destdir, destdir, sizeof(abs_destdir));
+            }
+            
+            printf("Building %s-%s...\n", info->pkgname, info->pkgver);
+            char shell_cmd[16384];
+            snprintf(shell_cmd, sizeof(shell_cmd), 
+                "export DESTDIR=\"%s\"; . %s/PKGBUILD; "
+                "if type build >/dev/null 2>&1; then (cd %s && build); fi; "
+                "if type package >/dev/null 2>&1; then (cd %s && package); fi",
+                abs_destdir, pkgdir, pkgdir, pkgdir);
+            
+            int res = system(shell_cmd);
+            if (res != 0) {
+                fprintf(stderr, "Error: Build failed for %s\n", info->pkgname);
+                free_pkg_info(info);
+                free(repo);
+                return EXIT_FAILURE;
+            }
+
+            /* Create the package archive */
+            if (gpkg_package_archive(info->pkgname, info->pkgver, destdir) != 0) {
+                fprintf(stderr, "Error: Failed to create package archive.\n");
+                free_pkg_info(info);
+                free(repo);
+                return EXIT_FAILURE;
+            }
+
             free_pkg_info(info);
             free(repo);
-            return res;
+            return EXIT_SUCCESS;
         }
 
         case CMD_INSTALL: {
