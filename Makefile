@@ -24,6 +24,3 @@ install: $(TARGET)
 	mkdir -p $(DESTDIR)/var/db/gpkg/local/installed
 	install -m 755 $(TARGET) $(DESTDIR)/usr/local/bin/$(TARGET)
 	install -m 755 scripts/build_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/
-	install -m 755 scripts/install_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/
-	install -m 755 scripts/remove_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/
-	install -m 755 scripts/upgrade_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/

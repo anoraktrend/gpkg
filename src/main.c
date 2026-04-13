@@ -335,6 +335,126 @@ int run_script(const char *script_name, int argc, char *argv[]) {
     }
 }
 
+int gpkg_install(const char *pkgfile) {
+    struct stat st;
+    if (stat(pkgfile, &st) != 0) {
+        fprintf(stderr, "Error: Package file '%s' not found.\n", pkgfile);
+        return -1;
+    }
+
+    /* Extract pkgname_ver from filename (remove .gpkg) */
+    const char *base = strrchr(pkgfile, '/');
+    if (base) base++; else base = pkgfile;
+    
+    char pkgname_ver[4096];
+    gpkg_strscpy(pkgname_ver, base, sizeof(pkgname_ver));
+    char *ext = strstr(pkgname_ver, ".gpkg");
+    if (ext) *ext = '\0';
+
+    printf("Installing %s...\n", pkgname_ver);
+
+    const char *root = getenv("GPKG_ROOT");
+    if (!root) root = "/";
+    const char *repo = getenv("GPKG_REPO");
+    if (!repo) repo = "local";
+
+    /* Create database directory */
+    char db_dir[4096];
+    gpkg_path_join(db_dir, PKG_DB_PATH, repo, sizeof(db_dir));
+    gpkg_path_join(db_dir, db_dir, "installed", sizeof(db_dir));
+    gpkg_path_join(db_dir, db_dir, pkgname_ver, sizeof(db_dir));
+
+    char mkdir_cmd[8192];
+    snprintf(mkdir_cmd, sizeof(mkdir_cmd), "mkdir -p %s", db_dir);
+    if (system(mkdir_cmd) != 0) {
+        fprintf(stderr, "Error: Failed to create database directory %s\n", db_dir);
+        return -1;
+    }
+
+    /* 1. Extract to root */
+    char *tar_extract_argv[] = {(char*)"tar", (char*)"-xzf", (char*)pkgfile, (char*)"-C", (char*)root, nullptr};
+    if (run_command("tar", tar_extract_argv) != 0) {
+        fprintf(stderr, "Error: Failed to extract package to %s\n", root);
+        return -1;
+    }
+
+    /* 2. Record file list */
+    char files_path[4096];
+    gpkg_path_join(files_path, db_dir, "files", sizeof(files_path));
+    
+    char tar_list_cmd[8192];
+    snprintf(tar_list_cmd, sizeof(tar_list_cmd), "tar -tf %s > %s", pkgfile, files_path);
+    if (system(tar_list_cmd) != 0) {
+        fprintf(stderr, "Error: Failed to record file list.\n");
+        return -1;
+    }
+
+    printf("%s installed successfully into %s.\n", pkgname_ver, root);
+    return 0;
+}
+
+int gpkg_remove(const char *pkgname_ver) {
+    const char *repo = getenv("GPKG_REPO");
+    if (!repo) repo = "local";
+
+    char db_dir[4096];
+    gpkg_path_join(db_dir, PKG_DB_PATH, repo, sizeof(db_dir));
+    gpkg_path_join(db_dir, db_dir, "installed", sizeof(db_dir));
+    gpkg_path_join(db_dir, db_dir, pkgname_ver, sizeof(db_dir));
+
+    struct stat st;
+    if (stat(db_dir, &st) != 0) {
+        /* Try searching all repos */
+        DIR *d = opendir(PKG_DB_PATH);
+        bool found = false;
+        if (d) {
+            struct dirent *ent;
+            while ((ent = readdir(d)) != nullptr) {
+                if (ent->d_name[0] == '.') continue;
+                char try_path[4096];
+                gpkg_path_join(try_path, PKG_DB_PATH, ent->d_name, sizeof(try_path));
+                gpkg_path_join(try_path, try_path, "installed", sizeof(try_path));
+                gpkg_path_join(try_path, try_path, pkgname_ver, sizeof(try_path));
+                if (stat(try_path, &st) == 0) {
+                    gpkg_strscpy(db_dir, try_path, sizeof(db_dir));
+                    found = true;
+                    break;
+                }
+            }
+            closedir(d);
+        }
+        if (!found) {
+            fprintf(stderr, "Error: Package '%s' not found in database.\n", pkgname_ver);
+            return -1;
+        }
+    }
+
+    printf("Removing %s...\n", pkgname_ver);
+    const char *root = getenv("GPKG_ROOT");
+    if (!root) root = "/";
+
+    char files_path[4096];
+    gpkg_path_join(files_path, db_dir, "files", sizeof(files_path));
+
+    /* 1. Remove files */
+    char rm_files_cmd[8192];
+    snprintf(rm_files_cmd, sizeof(rm_files_cmd), "while read -r f; do [ -f \"%s/$f\" ] || [ -L \"%s/$f\" ] && rm -f \"%s/$f\"; done < %s", root, root, root, files_path);
+    system(rm_files_cmd);
+
+    /* 2. Remove empty directories in reverse order */
+    char rm_dirs_cmd[8192];
+    snprintf(rm_dirs_cmd, sizeof(rm_dirs_cmd), "sort -r %s | while read -r f; do [ -d \"%s/$f\" ] && rmdir \"%s/$f\" 2>/dev/null || true; done", files_path, root, root);
+    system(rm_dirs_cmd);
+
+    /* 3. Remove database entry */
+    char rm_db_cmd[8192];
+    snprintf(rm_db_cmd, sizeof(rm_db_cmd), "rm -rf %s", db_dir);
+    system(rm_db_cmd);
+
+    printf("%s removed successfully.\n", pkgname_ver);
+    return 0;
+}
+
 void list_packages(void) {
     DIR *db_dir = opendir(PKG_DB_PATH);
     if (db_dir == nullptr) {
@@ -432,7 +552,7 @@ int main(int argc, char *argv[]) {
             }
             /* Try to guess repo from environment or default to 'local' */
             if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
-            return run_script("install_pkg.sh", 1, &argv[2]);
+            return gpkg_install(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 
         case CMD_UPGRADE: {
@@ -441,7 +561,8 @@ int main(int argc, char *argv[]) {
                 return EXIT_FAILURE;
             }
             if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
-            return run_script("upgrade_pkg.sh", 1, &argv[2]);
+            /* Upgrade is currently just a re-install */
+            return gpkg_install(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 
         case CMD_REMOVE: {
@@ -450,7 +571,7 @@ int main(int argc, char *argv[]) {
                 return EXIT_FAILURE;
             }
             if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
-            return run_script("remove_pkg.sh", 1, &argv[2]);
+            return gpkg_remove(argv[2]) == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
         }
 
         case CMD_LIST:
