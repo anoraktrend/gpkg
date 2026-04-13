@@ -12,3 +12,5 @@ repo/*/*/
 *.gpkg.*
 *pkg-*/
 *stage2-root/
+.gpkg
+*.gpkg
