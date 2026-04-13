@@ -3,7 +3,7 @@
 CC = cc
 CFLAGS = -std=c2x -Wall -Wextra -Wpedantic -Iinclude \
          -DPKG_SCRIPTS_PATH="\"scripts\"" \
-         -DPKG_DB_PATH="\"db/installed\""
+         -DPKG_DB_PATH="\"db\""
 TARGET = gpkg
 SRC = src/main.c
 OBJ = $(SRC:.c=.o)
@@ -21,7 +21,7 @@ clean:
 install: $(TARGET)
 	mkdir -p $(DESTDIR)/usr/local/bin
 	mkdir -p $(DESTDIR)/usr/local/lib/gpkg/scripts
-	mkdir -p $(DESTDIR)/var/db/gpkg/installed
+	mkdir -p $(DESTDIR)/var/db/gpkg/local/installed
 	install -m 755 $(TARGET) $(DESTDIR)/usr/local/bin/$(TARGET)
 	install -m 755 scripts/build_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/
 	install -m 755 scripts/install_pkg.sh $(DESTDIR)/usr/local/lib/gpkg/scripts/

@@ -21,4 +21,7 @@ package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "musl-$pkgver"
     ckati DESTDIR="$DESTDIR" install
+    # Ensure relative symlink for loader
+    mkdir -p "$DESTDIR/lib"
+    ln -sf ../usr/lib/libc.so "$DESTDIR/lib/ld-musl-x86_64.so.1"
 }

@@ -21,7 +21,7 @@
  */
 
 #ifndef PKG_DB_PATH
-#define PKG_DB_PATH "db/installed"
+#define PKG_DB_PATH "db"
 #endif
 
 #ifndef PKG_SCRIPTS_PATH
@@ -92,6 +92,18 @@ static ssize_t gpkg_path_join(char *dst, const char *p1, const char *p2, size_t 
     if (res2 < 0) return res2;
 
     return (ssize_t)(len + (size_t)res2);
+}
+
+static char *get_repo_name(const char *pkgdir) {
+    if (!pkgdir) return nullptr;
+    char *p = strdup(pkgdir);
+    char *sep = strchr(p, '/');
+    if (sep) {
+        *sep = '\0';
+        return p;
+    }
+    free(p);
+    return strdup("local");
 }
 
 Command parse_command(const char *cmd_str) {
@@ -324,25 +336,40 @@ int run_script(const char *script_name, int argc, char *argv[]) {
 }
 
 void list_packages(void) {
-    DIR *d = opendir(PKG_DB_PATH);
-    if (d == nullptr) {
+    DIR *db_dir = opendir(PKG_DB_PATH);
+    if (db_dir == nullptr) {
         printf("No packages installed (database not found at %s).\n", PKG_DB_PATH);
         return;
     }
 
-    struct dirent *dir;
+    struct dirent *repo_ent;
     bool found = false;
-    while ((dir = readdir(d)) != nullptr) {
-        if (dir->d_name[0] == '.') continue;
-        printf("- %s\n", dir->d_name);
-        found = true;
+    while ((repo_ent = readdir(db_dir)) != nullptr) {
+        if (repo_ent->d_name[0] == '.') continue;
+
+        char repo_path[4096];
+        if (gpkg_path_join(repo_path, PKG_DB_PATH, repo_ent->d_name, sizeof(repo_path)) < 0) continue;
+        
+        char installed_path[4096];
+        if (gpkg_path_join(installed_path, repo_path, "installed", sizeof(installed_path)) < 0) continue;
+
+        DIR *inst_dir = opendir(installed_path);
+        if (!inst_dir) continue;
+
+        struct dirent *pkg_ent;
+        while ((pkg_ent = readdir(inst_dir)) != nullptr) {
+            if (pkg_ent->d_name[0] == '.') continue;
+            printf("[%s] %s\n", repo_ent->d_name, pkg_ent->d_name);
+            found = true;
+        }
+        closedir(inst_dir);
     }
 
     if (!found) {
         printf("No packages installed.\n");
     }
 
-    closedir(d);
+    closedir(db_dir);
 }
 
 int main(int argc, char *argv[]) {
@@ -366,6 +393,9 @@ int main(int argc, char *argv[]) {
                 return EXIT_FAILURE;
             }
 
+            char *repo = get_repo_name(pkgdir);
+            setenv("GPKG_REPO", repo, 1);
+
             if (info->source && strlen(info->source) > 0) {
                 printf("Fetching sources for %s...\n", info->pkgname);
                 char *src_dup = strdup(info->source);
@@ -375,12 +405,14 @@ int main(int argc, char *argv[]) {
                         fprintf(stderr, "Error: Failed to download %s\n", url);
                         free(src_dup);
                         free_pkg_info(info);
+                        free(repo);
                         return EXIT_FAILURE;
                     }
                     if (extract_source(pkgdir, url) != 0) {
                         fprintf(stderr, "Error: Failed to extract %s\n", url);
                         free(src_dup);
                         free_pkg_info(info);
+                        free(repo);
                         return EXIT_FAILURE;
                     }
                     url = strtok(nullptr, ";");
@@ -389,29 +421,37 @@ int main(int argc, char *argv[]) {
             }
             int res = run_script("build_pkg.sh", 1, &argv[2]);
             free_pkg_info(info);
+            free(repo);
             return res;
         }
 
-        case CMD_INSTALL:
+        case CMD_INSTALL: {
             if (argc < 3) {
                 fprintf(stderr, "Error: 'install' requires a package file.\n");
                 return EXIT_FAILURE;
             }
+            /* Try to guess repo from environment or default to 'local' */
+            if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
             return run_script("install_pkg.sh", 1, &argv[2]);
+        }
 
-        case CMD_UPGRADE:
+        case CMD_UPGRADE: {
             if (argc < 3) {
                 fprintf(stderr, "Error: 'upgrade' requires a package file.\n");
                 return EXIT_FAILURE;
             }
+            if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
             return run_script("upgrade_pkg.sh", 1, &argv[2]);
+        }
 
-        case CMD_REMOVE:
+        case CMD_REMOVE: {
             if (argc < 3) {
                 fprintf(stderr, "Error: 'remove' requires a package name.\n");
                 return EXIT_FAILURE;
             }
+            if (!getenv("GPKG_REPO")) setenv("GPKG_REPO", "local", 0);
             return run_script("remove_pkg.sh", 1, &argv[2]);
+        }
 
         case CMD_LIST:
             list_packages();

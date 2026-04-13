@@ -27,10 +27,11 @@ echo "Installing $pkgname_ver..."
 # Destination root (default to /)
 # For testing, we might want to install to a local root
 root=${GPKG_ROOT:-/}
+repo=${GPKG_REPO:-local}
 
 # 1. Extract files and record them
 # We use tar -t to get a list of files for the database
-db_dir="db/installed/$pkgname_ver"
+db_dir="db/$repo/installed/$pkgname_ver"
 mkdir -p "$db_dir"
 
 # Extract to root

@@ -11,11 +11,25 @@ if [ $# -lt 1 ]; then
 fi
 
 pkgname_ver=$1
-db_dir="db/installed/$pkgname_ver"
+repo=${GPKG_REPO:-local}
+db_dir="db/$repo/installed/$pkgname_ver"
 
 if [ ! -d "$db_dir" ]; then
-    echo "Error: Package '$pkgname_ver' not found in database."
-    exit 1
+    # If not found in specified/default repo, try searching all repos
+    found_db=""
+    for d in db/*/installed/"$pkgname_ver"; do
+        if [ -d "$d" ]; then
+            found_db="$d"
+            break
+        fi
+    done
+    
+    if [ -n "$found_db" ]; then
+        db_dir="$found_db"
+    else
+        echo "Error: Package '$pkgname_ver' not found in database."
+        exit 1
+    fi
 fi
 
 echo "Removing $pkgname_ver..."

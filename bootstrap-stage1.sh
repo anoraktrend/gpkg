@@ -71,13 +71,14 @@ mkdir -p db/installed # Ensure local database is ready
 echo "Starting Stage1 Bootstrap..."
 echo "Stage1 Root: $STAGE1_ROOT"
 
+export GPKG_REPO="repo-stage1"
+
 for pkg in $PACKAGES; do
-    # Check if package is already installed
     pkgname=$(grep '^pkgname=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgver=$(grep '^pkgver=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgname_ver="$pkgname-$pkgver"
     
-    if [ -d "db/installed/$pkgname_ver" ]; then
+    if [ -d "db/$GPKG_REPO/installed/$pkgname_ver" ]; then
         echo "Package $pkgname_ver is already installed, skipping..."
         continue
     fi

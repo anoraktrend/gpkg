@@ -76,18 +76,15 @@ echo "Starting Stage2 Bootstrap..."
 echo "Using Stage1 Root: $STAGE1_ROOT"
 echo "Stage2 Root: $STAGE2_ROOT"
 
+export GPKG_REPO="repo-stage2"
+
 for pkg in $PACKAGES; do
     pkgname=$(grep '^pkgname=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgver=$(grep '^pkgver=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgname_ver="$pkgname-$pkgver"
     
-    if [ -d "db/installed/$pkgname_ver" ]; then
-        # This is a bit tricky because Stage 2 installs to STAGE2_ROOT
-        # and Stage 1 installs to STAGE1_ROOT, but they share the same 'db/installed'.
-        # However, for bootstrapping, if it's in db/installed, it's likely already done
-        # in the current context.
-        echo "Package $pkgname_ver is already installed, skipping..."
-        # Optional: verify it exists in STAGE2_ROOT too
+    if [ -d "db/$GPKG_REPO/installed/$pkgname_ver" ]; then
+        echo "Package $pkgname_ver is already installed in $GPKG_REPO, skipping..."
         continue
     fi
 
