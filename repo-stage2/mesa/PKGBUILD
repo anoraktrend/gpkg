@@ -1,0 +1,43 @@
+# gpkg PKGBUILD for mesa
+# POSIX shell compliant - EE Ethos
+
+pkgname="mesa"
+pkgver="26.0.4"
+pkgdesc="An open-source implementation of the OpenGL specification"
+url="https://www.mesa3d.org/"
+source="https://archive.mesa3d.org/mesa-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "mesa-$pkgver"
+    
+    # Mesa uses Meson
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Dplatforms=wayland \
+          -Dgallium-drivers=swrast,iris,radeonsi \
+          -Dvulkan-drivers=swrast,intel,amd \
+          -Ddri3=enabled \
+          -Degl=enabled \
+          -Dgbm=enabled \
+          -Dgles1=enabled \
+          -Dgles2=enabled \
+          -Dglx=disabled \
+          -Dllvm=enabled \
+          -Dshared-llvm=enabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "mesa-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

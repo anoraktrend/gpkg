@@ -15,7 +15,7 @@ build() {
     echo "Building $pkgname-$pkgver using system tools..."
     cd "aria2-$pkgver"
     
-    # aria2 uses Autotools (configure/bmake)
+    # aria2 uses Autotools (configure/ckati)
     ./configure --prefix=/usr \
                 --disable-nls \
                 --disable-dependency-tracking \
@@ -23,12 +23,12 @@ build() {
                 --with-expat \
                 --without-sqlite3
     
-    # Use host bmake
-    bmake
+    # Use host ckati
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "aria2-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }

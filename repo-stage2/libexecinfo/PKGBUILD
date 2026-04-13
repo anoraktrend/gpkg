@@ -3,10 +3,10 @@
 # BSD-licensed backtrace(3) implementation for musl
 
 pkgname="libexecinfo"
-pkgver="1.1"
+pkgver="1.1.0.19"
 pkgdesc="A quick-n-dirty BSD licensed clone of backtrace facility"
-url="https://github.com/sjnam/libexecinfo"
-source="https://github.com/sjnam/libexecinfo/archive/v$pkgver.tar.gz"
+url="https://github.com/fam007e/libexecinfo"
+source="https://github.com/fam007e/libexecinfo/archive/refs/tags/v$pkgver.tar.gz"
 
 # Tools to be used (no GNU assumptions)
 CC="clang"
@@ -14,11 +14,17 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver..."
     cd "libexecinfo-$pkgver"
-    # Simple build logic
-    $CC $CFLAGS -c execinfo.c -o execinfo.o
-    $CC $CFLAGS -c stacktraverse.c -o stacktraverse.o
-    llvm-ar rcs libexecinfo.a execinfo.o stacktraverse.o
-    $CC -shared $LDFLAGS -o libexecinfo.so.1 execinfo.o stacktraverse.o
+    # Generate stacktraverse.c using host python3
+    python3 gen.py --max-depth 128 --output stacktraverse.c
+    # Use ckati for building (if Makefile is present)
+    if [ -f Makefile ]; then
+        ckati CC=$CC
+    else
+        $CC $CFLAGS -c execinfo.c -o execinfo.o
+        $CC $CFLAGS -c stacktraverse.c -o stacktraverse.o
+        llvm-ar rcs libexecinfo.a execinfo.o stacktraverse.o
+        $CC -shared $LDFLAGS -o libexecinfo.so.1 execinfo.o stacktraverse.o
+    fi
 }
 
 package() {
@@ -28,6 +34,6 @@ package() {
     mkdir -p "$DESTDIR/usr/lib"
     cp execinfo.h "$DESTDIR/usr/include/"
     cp libexecinfo.a "$DESTDIR/usr/lib/"
-    cp libexecinfo.so.1 "$DESTDIR/usr/lib/"
-    ln -sf libexecinfo.so.1 "$DESTDIR/usr/lib/libexecinfo.so"
+    [ -f libexecinfo.so.1 ] && cp libexecinfo.so.1 "$DESTDIR/usr/lib/"
+    [ -f "$DESTDIR/usr/lib/libexecinfo.so.1" ] && ln -sf libexecinfo.so.1 "$DESTDIR/usr/lib/libexecinfo.so"
 }

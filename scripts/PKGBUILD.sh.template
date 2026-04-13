@@ -7,6 +7,7 @@ pkgname="testpkg"
 pkgver="1.0.0"
 pkgdesc="A test package for gpkg"
 maintainer="Lucy <lucy@example.com>"
+source="https://example.com/sources/$pkgname-$pkgver.tar.gz"
 
 build() {
     echo "Running build for $pkgname-$pkgver"

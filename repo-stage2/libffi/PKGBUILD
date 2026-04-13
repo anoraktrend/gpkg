@@ -17,11 +17,11 @@ build() {
                 --disable-multi-os-directory \
                 --disable-dependency-tracking \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "libffi-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }

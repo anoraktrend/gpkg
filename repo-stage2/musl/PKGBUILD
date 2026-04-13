@@ -1,5 +1,5 @@
-# gpkg PKGBUILD for musl libc (Stage1)
-# Use system 'bmake' to build musl
+# gpkg PKGBUILD for musl libc (Stage2)
+# Use 'ckati' to build musl
 
 pkgname="musl"
 pkgver="1.2.6"
@@ -11,14 +11,14 @@ source="https://musl.libc.org/releases/musl-$pkgver.tar.gz"
 CC="clang"
 
 build() {
-    echo "Building $pkgname-$pkgver using system tools..."
+    echo "Building $pkgname-$pkgver using stage1 tools..."
     cd "musl-$pkgver"
     ./configure --prefix=/usr --syslibdir=/lib
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "musl-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }

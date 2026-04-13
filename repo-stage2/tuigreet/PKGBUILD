@@ -1,0 +1,25 @@
+# gpkg PKGBUILD for tuigreet
+# POSIX shell compliant - EE Ethos
+
+pkgname="tuigreet"
+pkgver="0.9.1"
+pkgdesc="A graphical-ish terminal greeter for greetd"
+url="https://github.com/apognu/tuigreet"
+source="https://github.com/apognu/tuigreet/archive/refs/tags/$pkgver.tar.gz"
+
+# tuigreet is built with Cargo (Rust)
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "tuigreet-$pkgver"
+    cargo build --release
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/bin"
+    cd "tuigreet-$pkgver"
+    cp target/release/tuigreet "$DESTDIR/usr/bin/"
+}

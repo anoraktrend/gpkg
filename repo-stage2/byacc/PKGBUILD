@@ -16,13 +16,13 @@ build() {
     ./configure --prefix=/usr \
                 --program-transform-name='s/^/b/' \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "byacc-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
     # Link byacc to yacc
     mkdir -p "$DESTDIR/usr/bin"
     ln -sf byacc "$DESTDIR/usr/bin/yacc"

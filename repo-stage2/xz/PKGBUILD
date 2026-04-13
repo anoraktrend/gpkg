@@ -1,0 +1,29 @@
+# gpkg PKGBUILD for xz
+# POSIX shell compliant - EE Ethos
+
+pkgname="xz"
+pkgver="5.8.3"
+pkgdesc="Library and command line tools for XZ and LZMA compression"
+url="https://tukaani.org/xz/"
+source="https://tukaani.org/xz/xz-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "xz-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-nls \
+                --disable-dependency-tracking \
+                CC=$CC
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "xz-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}
+

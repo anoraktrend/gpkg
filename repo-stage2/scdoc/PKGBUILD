@@ -13,11 +13,11 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver..."
     cd "scdoc-$pkgver"
-    bmake PREFIX=/usr
+    ckati PREFIX=/usr
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "scdoc-$pkgver"
-    bmake PREFIX=/usr DESTDIR="$DESTDIR" install
+    ckati PREFIX=/usr DESTDIR="$DESTDIR" install
 }

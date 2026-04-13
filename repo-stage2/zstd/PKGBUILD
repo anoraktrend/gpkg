@@ -1,0 +1,23 @@
+# gpkg PKGBUILD for zstd
+# POSIX shell compliant - EE Ethos
+
+pkgname="zstd"
+pkgver="1.5.7"
+pkgdesc="Zstandard - Fast real-time compression algorithm"
+url="https://facebook.github.io/zstd/"
+source="https://github.com/facebook/zstd/releases/download/v$pkgver/zstd-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "zstd-$pkgver"
+    ckati CC=$CC
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "zstd-$pkgver"
+    ckati PREFIX=/usr DESTDIR="$DESTDIR" install
+}

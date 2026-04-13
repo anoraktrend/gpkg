@@ -18,13 +18,13 @@ build() {
                 --disable-dependency-tracking \
                 CC=$CC
     
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "pkgconf-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
     
     # Symlink to pkg-config for compatibility
     mkdir -p "$DESTDIR/usr/bin"

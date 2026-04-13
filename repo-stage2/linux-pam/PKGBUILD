@@ -21,12 +21,12 @@ build() {
                 --disable-regenerate-docu \
                 --disable-nls \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "Linux-PAM-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }
 

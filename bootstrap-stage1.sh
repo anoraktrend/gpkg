@@ -37,6 +37,7 @@ PACKAGES="
     libxml2
     bmake
     gmake
+    kati
     m4
     byacc
     flex
@@ -89,7 +90,7 @@ for pkg in $PACKAGES; do
     ./gpkg build "$REPO_DIR/$pkg"
     
     # 2. Get the built filename
-    pkgfile=$(ls -t $pkgname-$pkgver*.gpkg.tar.gz 2>/dev/null | head -n 1)
+    pkgfile=$(ls -t $pkgname-$pkgver*.gpkg 2>/dev/null | head -n 1)
     
     if [ -z "$pkgfile" ]; then
         echo "Error: Package file for $pkgname-$pkgver not found."

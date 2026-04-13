@@ -15,11 +15,11 @@ build() {
     # zlib extraction name is usually just zlib-version
     cd "zlib-$pkgver"
     ./configure --prefix=/usr
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "zlib-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }

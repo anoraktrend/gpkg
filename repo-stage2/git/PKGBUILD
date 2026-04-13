@@ -15,7 +15,7 @@ build() {
     cd "git-$pkgver"
     
     if [ ! -f configure ]; then
-        bmake configure
+        gmake configure
     fi
 
     ./configure --prefix=/usr \
@@ -24,12 +24,12 @@ build() {
                 --with-zlib \
                 --without-tcltk
     
-    bmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease all
+    gmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease all
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "git-$pkgver"
-    bmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease DESTDIR="$DESTDIR" install
+    gmake NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_PERL=YesPlease NO_PYTHON=YesPlease DESTDIR="$DESTDIR" install
 }
 

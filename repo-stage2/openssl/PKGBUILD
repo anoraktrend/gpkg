@@ -21,12 +21,12 @@ build() {
                 linux-x86_64 \
                 CC=$CC
     
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "openssl-$pkgver"
-    bmake DESTDIR="$DESTDIR" install_sw
+    ckati DESTDIR="$DESTDIR" install_sw
 }
 

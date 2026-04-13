@@ -16,12 +16,12 @@ build() {
     ./configure --prefix=/usr \
                 --disable-dependency-tracking \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "libbsd-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }
 

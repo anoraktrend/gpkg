@@ -22,44 +22,7 @@ fi
 
 echo "Building package: $pkgname-$pkgver"
 
-# 1. Handle sources
-if [ -n "$source" ]; then
-    echo "Fetching sources for $pkgname..."
-    mkdir -p "src-cache"
-    
-    # We use aria2c for high-performance downloading
-    # --dir sets the download directory
-    # --out sets the filename
-    # -x16 uses 16 connections for speed
-    for src_url in $(echo "$source" | tr ';' ' '); do
-        src_file=$(basename "$src_url")
-        if [ ! -f "src-cache/$src_file" ]; then
-            echo "Downloading $src_url..."
-            if command -v aria2c >/dev/null 2>&1; then
-                aria2c -d "src-cache" -o "$src_file" -x16 "$src_url"
-            else
-                echo "Warning: aria2c not found, falling back to curl..."
-                curl -L -o "src-cache/$src_file" "$src_url"
-            fi
-        fi
-        
-        echo "Extracting $src_file..."
-        # Extract into the package directory
-        # First, find and remove potential previous extraction to ensure clean patching
-        src_base=$(echo "$src_file" | sed -E 's/\.(tar\.gz|tgz|tar\.xz|tar\.bz2|zip)$//')
-        rm -rf "$pkgdir/$src_base"
-        
-        case "$src_file" in
-            *.tar.gz|*.tgz) tar -xzf "src-cache/$src_file" -C "$pkgdir" ;;
-            *.tar.xz) tar -xJf "src-cache/$src_file" -C "$pkgdir" ;;
-            *.tar.bz2) tar -xjf "src-cache/$src_file" -C "$pkgdir" ;;
-            *.zip) unzip -q "src-cache/$src_file" -d "$pkgdir" ;;
-            *) echo "Warning: Unknown file type for $src_file" ;;
-        esac
-    done
-fi
-
-# 2. Apply patches
+# Applying patches
 if [ -d "$pkgdir/patches" ]; then
     echo "Applying patches for $pkgname..."
     for patch in "$pkgdir/patches"/*.patch; do
@@ -98,8 +61,8 @@ if type package >/dev/null 2>&1; then
     (cd "$pkgdir" && package)
 fi
 
-# 4. Create the package tarball
-pkgfile="$pkgname-$pkgver.gpkg.tar.gz"
+# 4. Create the package tarball (.gpkg)
+pkgfile="$pkgname-$pkgver.gpkg"
 tar -czf "$pkgfile" -C "$destdir" .
 
 echo "Package $pkgfile created successfully."

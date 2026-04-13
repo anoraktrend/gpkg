@@ -81,6 +81,16 @@ for pkg in $PACKAGES; do
     pkgver=$(grep '^pkgver=' "$REPO_DIR/$pkg/PKGBUILD" | cut -d'"' -f2)
     pkgname_ver="$pkgname-$pkgver"
     
+    if [ -d "db/installed/$pkgname_ver" ]; then
+        # This is a bit tricky because Stage 2 installs to STAGE2_ROOT
+        # and Stage 1 installs to STAGE1_ROOT, but they share the same 'db/installed'.
+        # However, for bootstrapping, if it's in db/installed, it's likely already done
+        # in the current context.
+        echo "Package $pkgname_ver is already installed, skipping..."
+        # Optional: verify it exists in STAGE2_ROOT too
+        continue
+    fi
+
     echo "========================================"
     echo "Building $pkg (Stage2)..."
     echo "========================================"
@@ -89,7 +99,7 @@ for pkg in $PACKAGES; do
     ./gpkg build "$REPO_DIR/$pkg"
     
     # 2. Get the built filename
-    pkgfile=$(ls -t $pkgname-$pkgver*.gpkg.tar.gz 2>/dev/null | head -n 1)
+    pkgfile=$(ls -t $pkgname-$pkgver*.gpkg 2>/dev/null | head -n 1)
     
     if [ -z "$pkgfile" ]; then
         echo "Error: Package file for $pkgname-$pkgver not found."

@@ -18,9 +18,9 @@ if [ ! -f "$pkgfile" ]; then
 fi
 
 # Extract package name and version from filename
-# Assuming format: pkgname-pkgver.gpkg.tar.gz
+# Assuming format: pkgname-pkgver.gpkg
 filename=$(basename "$pkgfile")
-pkgname_ver=$(echo "$filename" | sed 's/\.gpkg\.tar\.gz$//')
+pkgname_ver=$(echo "$filename" | sed 's/\.gpkg$//')
 
 echo "Installing $pkgname_ver..."
 

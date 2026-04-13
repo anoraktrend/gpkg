@@ -18,11 +18,11 @@ build() {
                 --disable-dependency-tracking \
                 --without-harfbuzz \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "freetype-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }

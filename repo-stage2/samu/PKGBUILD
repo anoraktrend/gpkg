@@ -14,7 +14,7 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver with $CC..."
     cd "samurai-$pkgver"
-    bmake CC=$CC
+    ckati CC=$CC
 }
 
 package() {

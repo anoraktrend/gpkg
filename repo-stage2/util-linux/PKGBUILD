@@ -1,0 +1,35 @@
+# gpkg PKGBUILD for util-linux
+# POSIX shell compliant - EE Ethos
+
+pkgname="util-linux"
+pkgver="2.42"
+pkgdesc="Random collection of Linux utilities"
+url="https://www.kernel.org/pub/linux/utils/util-linux/"
+source="https://www.kernel.org/pub/linux/utils/util-linux/v$pkgver/util-linux-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "util-linux-$pkgver"
+    
+    ./configure --prefix=/usr \
+                --disable-use-tty-group \
+                --disable-makeinstall-chown \
+                --disable-makeinstall-setuid \
+                --disable-nls \
+                --without-python \
+                --without-systemd \
+                --without-udev \
+                CC=$CC
+    
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "util-linux-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}
+

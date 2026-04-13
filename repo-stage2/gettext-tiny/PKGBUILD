@@ -14,11 +14,11 @@ CC="clang"
 build() {
     echo "Building $pkgname-$pkgver..."
     cd "gettext-tiny-$pkgver"
-    bmake CC=$CC LIBINTL=MUSL
+    ckati CC=$CC LIBINTL=MUSL
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "gettext-tiny-$pkgver"
-    bmake prefix=/usr DESTDIR="$DESTDIR" LIBINTL=MUSL install
+    ckati prefix=/usr DESTDIR="$DESTDIR" LIBINTL=MUSL install
 }

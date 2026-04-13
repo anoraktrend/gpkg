@@ -1,0 +1,31 @@
+# gpkg PKGBUILD for ncurses
+# POSIX shell compliant - EE Ethos
+
+pkgname="ncurses"
+pkgver="6.5"
+pkgdesc="System V Release 4.0 curses emulation library"
+url="https://www.gnu.org/software/ncurses/"
+source="https://ftp.gnu.org/pub/gnu/ncurses/ncurses-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions for CC)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "ncurses-$pkgver"
+    ./configure --prefix=/usr \
+                --with-shared \
+                --without-debug \
+                --without-ada \
+                --enable-widec \
+                --disable-nls \
+                CC=$CC
+    ckati
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "ncurses-$pkgver"
+    ckati DESTDIR="$DESTDIR" install
+}
+

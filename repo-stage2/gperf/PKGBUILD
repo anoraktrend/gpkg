@@ -16,12 +16,12 @@ build() {
     cd "gperf-$pkgver"
     ./configure --prefix=/usr \
                 CC=$CC
-    bmake
+    ckati
 }
 
 package() {
     echo "Installing $pkgname into $DESTDIR..."
     cd "gperf-$pkgver"
-    bmake DESTDIR="$DESTDIR" install
+    ckati DESTDIR="$DESTDIR" install
 }
 

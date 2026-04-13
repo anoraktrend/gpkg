@@ -1,0 +1,39 @@
+# gpkg PKGBUILD for cairo
+# POSIX shell compliant - EE Ethos
+
+pkgname="cairo"
+pkgver="1.18.4"
+pkgdesc="A multi-platform 2D graphics library"
+url="https://cairographics.org/"
+source="https://cairographics.org/releases/cairo-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "cairo-$pkgver"
+    
+    # Cairo uses Meson
+    meson setup build \
+          --prefix=/usr \
+          --buildtype=release \
+          -Dfontconfig=enabled \
+          -Dfreetype=enabled \
+          -Dglib=enabled \
+          -Dpng=enabled \
+          -Dtee=enabled \
+          -Dxcb=disabled \
+          -Dxlib=disabled \
+          -Dzlib=enabled \
+          --backend=ninja
+    
+    samu -C build
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "cairo-$pkgver"
+    DESTDIR="$DESTDIR" samu -C build install
+}
+

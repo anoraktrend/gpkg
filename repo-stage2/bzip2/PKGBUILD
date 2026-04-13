@@ -1,0 +1,26 @@
+# gpkg PKGBUILD for bzip2
+# POSIX shell compliant - EE Ethos
+
+pkgname="bzip2"
+pkgver="1.0.8"
+pkgdesc="A high-quality data compression program"
+url="https://sourceware.org/bzip2/"
+source="https://sourceware.org/pub/bzip2/bzip2-$pkgver.tar.gz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+
+build() {
+    echo "Building $pkgname-$pkgver..."
+    cd "bzip2-$pkgver"
+    # bzip2 has a very simple Makefile
+    ckati CC=$CC CFLAGS="-O2 -fPIC"
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR..."
+    cd "bzip2-$pkgver"
+    ckati PREFIX="$DESTDIR/usr" install
+    # Ensure bin dir exists and move if needed
+    mkdir -p "$DESTDIR/usr/bin"
+}

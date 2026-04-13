@@ -1,0 +1,33 @@
+# gpkg PKGBUILD for zig
+# POSIX shell compliant - EE Ethos
+
+pkgname="zig"
+pkgver="0.15.2"
+pkgdesc="General-purpose programming language and toolchain"
+url="https://ziglang.org/"
+# We use the source and bootstrap for a proper build
+source="https://ziglang.org/download/$pkgver/zig-$pkgver.tar.xz;https://ziglang.org/download/$pkgver/zig-bootstrap-$pkgver.tar.xz"
+
+# Tools to be used (no GNU assumptions)
+CC="clang"
+CXX="clang++"
+
+build() {
+    echo "Building $pkgname-$pkgver from source..."
+    cd "zig-bootstrap-$pkgver"
+    
+    # Zig bootstrap is its own system, usually we run its build script
+    # For now, we'll try to build the stage1 compiler
+    # (Actual bootstrap might require several steps)
+    ./build -Doptimize=ReleaseSafe
+}
+
+package() {
+    echo "Installing $pkgname into $DESTDIR/usr"
+    cd "zig-bootstrap-$pkgver"
+    mkdir -p "$DESTDIR/usr/bin"
+    mkdir -p "$DESTDIR/usr/lib/zig"
+    
+    cp out/bin/zig "$DESTDIR/usr/bin/"
+    cp -r out/lib/zig/* "$DESTDIR/usr/lib/zig/"
+}
