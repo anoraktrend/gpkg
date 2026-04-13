@@ -24,10 +24,6 @@
 #define PKG_DB_PATH "db"
 #endif
 
-#ifndef PKG_SCRIPTS_PATH
-#define PKG_SCRIPTS_PATH "scripts"
-#endif
-
 typedef enum { 
     CMD_BUILD,
     CMD_INSTALL,
